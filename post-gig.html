@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Gig - CineTasks Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --gold: #FFD700;
+            --black: #000000;
+            --blue: #1E90FF;
+            --green: #32CD32;
+            --red: #FF4500;
+            --yellow: #FFD700;
+            --bg-primary: #000000;
+            --bg-secondary: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --card-bg: #1A1A1A;
+            --border-color: #333333;
+        }
+
+        .light-mode {
+            --gold: #B8860B;
+            --black: #333333;
+            --blue: #007BFF;
+            --green: #28A745;
+            --red: #DC3545;
+            --yellow: #FFC107;
+            --bg-primary: #F5F5F5;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: var(--black);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle {
+            background: var(--black);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border-color);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: var(--gold);
+            color: var(--black);
+            transform: scale(1.1);
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 80px;
+        }
+
+        .step.active .step-label {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        .step-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-title {
+            font-size: 24px;
+            color: var(--gold);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .form-label .required {
+            color: var(--red);
+            margin-left: 5px;
+        }
+
+        .form-hint {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .char-counter.warning {
+            color: var(--red);
+        }
+
+        /* Skill Tags */
+        .skill-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .skill-tag {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .remove-skill {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Budget Range */
+        .budget-range {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .budget-input-group {
+            flex: 1;
+        }
+
+        .budget-slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .budget-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--gold);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .budget-preview {
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            color: var(--black);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            border: 3px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--gold);
+            background: var(--bg-secondary);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Form Navigation */
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .prev-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .next-btn, .submit-btn {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            color: white;
+        }
+
+        .prev-btn:hover {
+            border-color: var(--gold);
+        }
+
+        .next-btn:hover, .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4);
+        }
+
+        /* Step-specific styles */
+        #step1 .form-group:nth-child(1) .form-label { color: var(--blue); }
+        #step1 .form-group:nth-child(2) .form-label { color: var(--green); }
+        #step2 .form-group:nth-child(1) .form-label { color: var(--gold); }
+        #step2 .form-group:nth-child(2) .form-label { color: var(--red); }
+        #step3 .form-group:nth-child(1) .form-label { color: var(--blue); }
+        #step4 .form-group:nth-child(1) .form-label { color: var(--green); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .progress-steps {
+                flex-direction: column;
+                gap: 30px;
+                align-items: flex-start;
+            }
+            
+            .progress-steps::before {
+                display: none;
+            }
+            
+            .step {
+                flex-direction: row;
+                gap: 15px;
+                width: 100%;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <a href="gig-masters.html" class="back-btn">← Back</a>
+            <div class="page-title">📢 POST A GIG</div>
+        </div>
+        <button class="theme-toggle" id="themeToggle">
+            🌙 Dark Mode
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Basic Info</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Budget & Time</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Requirements</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Review & Post</div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <!-- STEP 1: Basic Information -->
+            <div class="step-content active" id="step1">
+                <h2 class="form-title">📝 Tell Us About Your Gig</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Gig Title <span class="required">*</span>
+                    </label>
+                    <div class="form-hint">
+                        Be specific about what you need. Example: "Logo Design for Restaurant" not just "Need Designer"
+                    </div>
+                    <input type="text" class="form-input" id="gigTitle" placeholder="What do you need done?" maxlength="100">
+                    <div class="char-counter"><span id="titleChars">0</span>/100 characters</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Category <span class="required">*</span>
+                    </label>
+                    <select class="form-select" id="gigCategory">
+                        <option value="">Select a category</option>
+                        <option value="design">🎨 Design & Creative</option>
+                        <option value="writing">✍️ Writing & Content</option>
+                        <option value="development">💻 Development & IT</option>
+                        <option value="video">🎬 Video & Animation</option>
+                        <option value="marketing">📈 Marketing & Sales</option>
+                        <option value="business">💼 Business & Admin</option>
+                        <option value="other">✨ Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Description <span class="required">*</span>
+                    </label>
+                    <div class="form-hint">
+                        Describe your gig in detail. What needs to be done? What are your expectations?
+                    </div>
+                    <textarea class="form-textarea" id="gigDescription" placeholder="Describe your gig in detail..." maxlength="2000"></textarea>
+                    <div class="char-counter"><span id="descChars">0</span>/2000 characters</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Required Skills
+                    </label>
+                    <div class="form-hint">
+                        Add relevant skills to help the right Gig Masters find your gig
+                    </div>
+                    <input type="text" class="form-input" id="skillInput" placeholder="Type a skill and press Enter">
+                    <div class="skill-tags-container" id="skillTags">
+                        <!-- Skills will be added here -->
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <div></div> <!-- Empty div for spacing -->
+                    <button class="nav-btn next-btn" onclick="nextStep()">
+                        Next Step ➔
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Budget & Timeline -->
+            <div class="step-content" id="step2">
+                <h2 class="form-title">💰 Set Budget & Timeline</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Budget Type <span class="required">*</span>
+                    </label>
+                    <div class="form-hint">
+                        How do you want to pay for this gig?
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;">
+                        <label class="budget-type-option">
+                            <input type="radio" name="budgetType" value="fixed" checked>
+                            <div class="option-card">
+                                <div style="font-size: 24px;">💼</div>
+                                <div style="font-weight: bold; margin-top: 10px;">Fixed Price</div>
+                                <div style="font-size: 12px; opacity: 0.8;">One-time payment</div>
+                            </div>
+                        </label>
+                        <label class="budget-type-option">
+                            <input type="radio" name="budgetType" value="hourly">
+                            <div class="option-card">
+                                <div style="font-size: 24px;">⏰</div>
+                                <div style="font-weight: bold; margin-top: 10px;">Hourly Rate</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Pay by the hour</div>
+                            </div>
+                        </label>
+                        <label class="budget-type-option">
+                            <input type="radio" name="budgetType" value="recurring">
+                            <div class="option-card">
+                                <div style="font-size: 24px;">🔄</div>
+                                <div style="font-weight: bold; margin-top: 10px;">Recurring</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Weekly/Monthly</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Budget Range <span class="required">*</span>
+                    </label>
+                    <div class="form-hint">
+                        What's your budget for this gig? (In Nigerian Naira)
+                    </div>
+                    <div class="budget-range">
+                        <div class="budget-input-group">
+                            <label style="font-size: 12px; color: var(--text-secondary);">Minimum</label>
+                            <input type="number" class="form-input" id="minBudget" placeholder="₦5,000" min="1000" step="1000">
+                        </div>
+                        <span style="color: var(--text-secondary);">to</span>
+                        <div class="budget-input-group">
+                            <label style="font-size: 12px; color: var(--text-secondary);">Maximum</label>
+                            <input type="number" class="form-input" id="maxBudget" placeholder="₦25,000" min="1000" step="1000">
+                        </div>
+                    </div>
+                    <input type="range" class="budget-slider" id="budgetSlider" min="1000" max="500000" step="1000" value="25000">
+                    <div class="budget-preview" id="budgetPreview">
+                        ₦5,000 - ₦25,000
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Timeline <span class="required">*</span>
+                    </label>
+                    <div class="form-hint">
+                        When do you need this gig completed?
+                    </div>
+                    <select class="form-select" id="timeline">
+                        <option value="">Select timeline</option>
+                        <option value="24h">🚀 Urgent (24 hours)</option>
+                        <option value="3d">⚡ Fast (3 days)</option>
+                        <option value="1w">📅 Standard (1 week)</option>
+                        <option value="2w">📆 Flexible (2 weeks)</option>
+                        <option value="1m">🗓️ Long-term (1 month)</option>
+                    </select>
+                </div>
+
+                <div class="form-navigation">
+                    <button class="nav-btn prev-btn" onclick="prevStep()">
+                        ⬅ Previous
+                    </button>
+                    <button class="nav-btn next-btn" onclick="nextStep()">
+                        Next Step ➔
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Requirements -->
+            <div class="step-content" id="step3">
+                <h2 class="form-title">🎯 Set Requirements</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Experience Level
+                    </label>
+                    <div class="form-hint">
+                        What level of expertise do you need?
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;">
+                        <label class="experience-option">
+                            <input type="radio" name="experienceLevel" value="entry">
+                            <div class="option-card">
+                                <div style="font-size: 24px;">🎯</div>
+                                <div style="font-weight: bold; margin-top: 10px;">Entry Level</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Basic skills, budget-friendly</div>
+                            </div>
+                        </label>
+                        <label class="experience-option">
+                            <input type="radio" name="experienceLevel" value="intermediate" checked>
+                            <div class="option-card">
+                                <div style="font-size: 24px;">⚡</div>
+                                <div style="font-weight: bold; margin-top: 10px;">Intermediate</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Some experience, good quality</div>
+                            </div>
+                        </label>
+                        <label class="experience-option">
+                            <input type="radio" name="experienceLevel" value="expert">
+                            <div class="option-card">
+                                <div style="font-size: 24px;">🏆</div>
+                                <div style="font-weight: bold; margin-top: 10px;">Expert</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Top quality, premium price</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Additional Requirements
+                    </label>
+                    <div class="form-hint">
+                        Any special requirements for Gig Masters?
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <input type="checkbox" id="requirePortfolio">
+                            <span>Portfolio required</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <input type="checkbox" id="requireInterview">
+                            <span>Interview required</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="requireTestTask">
+                            <span>Test task required</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Attachments (Optional)
+                    </label>
+                    <div class="form-hint">
+                        Upload any files that will help Gig Masters understand your requirements
+                    </div>
+                    <div class="file-upload-area" onclick="document.getElementById('fileUpload').click()">
+                        <div class="upload-icon">📎</div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">Click to upload files</div>
+                        <div style="color: var(--text-secondary); font-size: 14px;">
+                            PDF, DOC, JPG, PNG up to 10MB
+                        </div>
+                    </div>
+                    <input type="file" id="fileUpload" multiple style="display: none;">
+                    <div class="file-list" id="fileList">
+                        <!-- Uploaded files will appear here -->
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button class="nav-btn prev-btn" onclick="prevStep()">
+                        ⬅ Previous
+                    </button>
+                    <button class="nav-btn next-btn" onclick="nextStep()">
+                        Next Step ➔
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Review & Post -->
+            <div class="step-content" id="step4">
+                <h2 class="form-title">✅ Review & Post Your Gig</h2>
+                
+                <div class="form-group">
+                    <label class="form-label" style="color: var(--gold); font-size: 20px;">
+                        Gig Summary
+                    </label>
+                    <div id="gigSummary" style="background: var(--bg-secondary); padding: 25px; border-radius: 15px; margin-top: 15px;">
+                        <!-- Summary will be populated here -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Visibility Options
+                    </label>
+                    <div style="margin-top: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <input type="checkbox" id="makeFeatured">
+                            <div>
+                                <div style="font-weight: bold;">🔥 Feature This Gig (+₦500)</div>
+                                <div style="font-size: 14px; color: var(--text-secondary);">Get 3x more views for 7 days</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="makeUrgent">
+                            <div>
+                                <div style="font-weight: bold;">⚡ Mark as Urgent (+₦300)</div>
+                                <div style="font-size: 14px; color: var(--text-secondary);">Priority placement and badge</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div style="background: linear-gradient(135deg, var(--green), var(--blue)); color: white; padding: 25px; border-radius: 15px;">
+                        <h3 style="margin-bottom: 15px;">💰 Cost Breakdown</h3>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Gig Budget:</span>
+                            <span id="costBudget">₦15,000</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Platform Fee (10%):</span>
+                            <span id="costFee">₦1,500</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Featured (+₦500):</span>
+                            <span id="costFeatured">₦0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Urgent (+₦300):</span>
+                            <span id="costUrgent">₦0</span>
+                        </div>
+                        <div style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 15px; margin-top: 15px; font-size: 20px; font-weight: bold; display: flex; justify-content: space-between;">
+                            <span>TOTAL:</span>
+                            <span id="costTotal">₦16,500</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button class="nav-btn prev-btn" onclick="prevStep()">
+                        ⬅ Edit
+                    </button>
+                    <button class="nav-btn submit-btn" onclick="submitGig()">
+                        🚀 POST GIG NOW
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        let isDarkMode = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+                themeToggle.textContent = '🌙 Dark Mode';
+            } else {
+                document.body.classList.add('light-mode');
+                themeToggle.textContent = '☀️ Light Mode';
+            }
+        });
+
+        // Form state
+        let currentStep = 1;
+        const skills = [];
+        const uploadedFiles = [];
+
+        // Character counters
+        document.getElementById('gigTitle').addEventListener('input', function() {
+            document.getElementById('titleChars').textContent = this.value.length;
+        });
+
+        document.getElementById('gigDescription').addEventListener('input', function() {
+            document.getElementById('descChars').textContent = this.value.length;
+        });
+
+        // Skill tags
+        document.getElementById('skillInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const skill = this.value.trim();
+                if (skill && !skills.includes(skill)) {
+                    skills.push(skill);
+                    renderSkills();
+                    this.value = '';
+                }
+            }
+        });
+
+        function renderSkills() {
+            const container = document.getElementById('skillTags');
+            container.innerHTML = skills.map((skill, index) => `
+                <div class="skill-tag">
+                    ${skill}
+                    <button class="remove-skill" onclick="removeSkill(${index})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeSkill(index) {
+            skills.splice(index, 1);
+            renderSkills();
+        }
+
+        // Budget slider
+        const budgetSlider = document.getElementById('budgetSlider');
+        const minBudgetInput = document.getElementById('minBudget');
+        const maxBudgetInput = document.getElementById('maxBudget');
+        const budgetPreview = document.getElementById('budgetPreview');
+
+        function updateBudgetPreview() {
+            const min = parseInt(minBudgetInput.value) || 5000;
+            const max = parseInt(maxBudgetInput.value) || 25000;
+            budgetPreview.textContent = `₦${min.toLocaleString()} - ₦${max.toLocaleString()}`;
+            updateCostBreakdown();
+        }
+
+        budgetSlider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            minBudgetInput.value = Math.max(1000, Math.floor(value * 0.2));
+            maxBudgetInput.value = value;
+            updateBudgetPreview();
+        });
+
+        minBudgetInput.addEventListener('input', updateBudgetPreview);
+        maxBudgetInput.addEventListener('input', updateBudgetPreview);
+
+        // File upload
+        document.getElementById('fileUpload').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                uploadedFiles.push(file);
+            });
+            renderFileList();
+        });
+
+        function renderFileList() {
+            const container = document.getElementById('fileList');
+            container.innerHTML = uploadedFiles.map((file, index) => `
+                <div class="file-item">
+                    <div>
+                        <div style="font-weight: bold;">${file.name}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            ${(file.size / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                    </div>
+                    <button class="remove-skill" onclick="removeFile(${index})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            renderFileList();
+        }
+
+        // Step navigation
+        function nextStep() {
+            if (!validateCurrentStep()) return;
+            
+            // Hide current step
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+            
+            // Show next step
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+            
+            // Update summary on step 4
+            if (currentStep === 4) {
+                updateSummary();
+                updateCostBreakdown();
+            }
+        }
+
+        function prevStep() {
+            // Hide current step
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+            
+            // Show previous step
+            currentStep--;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+        }
+
+        // Validation
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                const title = document.getElementById('gigTitle').value.trim();
+                const category = document.getElementById('gigCategory').value;
+                const description = document.getElementById('gigDescription').value.trim();
+                
+                if (!title) {
+                    alert('Please enter a gig title');
+                    return false;
+                }
+                if (!category) {
+                    alert('Please select a category');
+                    return false;
+                }
+                if (!description || description.length < 50) {
+                    alert('Please enter a detailed description (at least 50 characters)');
+                    return false;
+                }
+            } else if (currentStep === 2) {
+                const minBudget = parseInt(minBudgetInput.value);
+                const maxBudget = parseInt(maxBudgetInput.value);
+                const timeline = document.getElementById('timeline').value;
+                
+                if (!minBudget || !maxBudget) {
+                    alert('Please enter budget range');
+                    return false;
+                }
+                if (minBudget > maxBudget) {
+                    alert('Minimum budget cannot be higher than maximum budget');
+                    return false;
+                }
+                if (!timeline) {
+                    alert('Please select a timeline');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Update summary
+        function updateSummary() {
+            const summary = document.getElementById('gigSummary');
+            
+            const title = document.getElementById('gigTitle').value;
+            const category = document.getElementById('gigCategory').options[document.getElementById('gigCategory').selectedIndex].text;
+            const budgetType = document.querySelector('input[name="budgetType"]:checked').value;
+            const minBudget = minBudgetInput.value;
+            const maxBudget = maxBudgetInput.value;
+            const timeline = document.getElementById('timeline').options[document.getElementById('timeline').selectedIndex].text;
+            const experience = document.querySelector('input[name="experienceLevel"]:checked').value;
+            
+            summary.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <div style="color: var(--text-secondary); font-size: 14px;">Title</div>
+                    <div style="font-weight: bold; font-size: 18px;">${title}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 15px;">
+                    <div>
+                        <div style="color: var(--text-secondary); font-size: 14px;">Category</div>
+                        <div style="font-weight: bold;">${category}</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-secondary); font-size: 14px;">Budget Type</div>
+                        <div style="font-weight: bold;">${budgetType === 'fixed' ? 'Fixed Price' : budgetType === 'hourly' ? 'Hourly Rate' : 'Recurring'}</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-secondary); font-size: 14px;">Budget Range</div>
+                        <div style="font-weight: bold; color: var(--gold);">₦${parseInt(minBudget).toLocaleString()} - ₦${parseInt(maxBudget).toLocaleString()}</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-secondary); font-size: 14px;">Timeline</div>
+                        <div style="font-weight: bold;">${timeline}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                    <div style="color: var(--text-secondary); font-size: 14px;">Required Skills</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                        ${skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update cost breakdown
+        function updateCostBreakdown() {
+            const minBudget = parseInt(minBudgetInput.value) || 5000;
+            const maxBudget = parseInt(maxBudgetInput.value) || 25000;
+            const avgBudget = (minBudget + maxBudget) / 2;
+            const platformFee = avgBudget * 0.1;
+            const featured = document.getElementById('makeFeatured').checked ? 500 : 0;
+            const urgent = document.getElementById('makeUrgent').checked ? 300 : 0;
+            const total = avgBudget + platformFee + featured + urgent;
+            
+            document.getElementById('costBudget').textContent = `₦${avgBudget.toLocaleString()}`;
+            document.getElementById('costFee').textContent = `₦${platformFee.toLocaleString()}`;
+            document.getElementById('costFeatured').textContent = `₦${featured.toLocaleString()}`;
+            document.getElementById('costUrgent').textContent = `₦${urgent.toLocaleString()}`;
+            document.getElementById('costTotal').textContent = `₦${total.toLocaleString()}`;
+        }
+
+        // Submit gig
+        function submitGig() {
+            // Final validation
+            if (!validateCurrentStep()) return;
+            
+            // Gather all data
+            const gigData = {
+                title: document.getElementById('gigTitle').value,
+                category: document.getElementById('gigCategory').value,
+                description: document.getElementById('gigDescription').value,
+                skills: skills,
+                budgetType: document.querySelector('input[name="budgetType"]:checked').value,
+                minBudget: parseInt(minBudgetInput.value),
+                maxBudget: parseInt(maxBudgetInput.value),
+                timeline: document.getElementById('timeline').value,
+                experienceLevel: document.querySelector('input[name="experienceLevel"]:checked').value,
+                requirePortfolio: document.getElementById('requirePortfolio').checked,
+                requireInterview: document.getElementById('requireInterview').checked,
+                requireTestTask: document.getElementById('requireTestTask').checked,
+                featured: document.getElementById('makeFeatured').checked,
+                urgent: document.getElementById('makeUrgent').checked,
+                files: uploadedFiles.map(f => f.name)
+            };
+            
+            // In a real app, this would send to backend
+            console.log('Gig Data:', gigData);
+            
+            // Show success message
+            alert(`🎉 Gig Posted Successfully!\n\n"${gigData.title}" is now live on Gig Masters.\n\nYou will start receiving applications soon!`);
+            
+            // Redirect to gig masters page
+            setTimeout(() => {
+                window.location.href = 'gig-masters.html';
+            }, 2000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Telegram integration
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.setHeaderColor('#FFD700');
+            
+            // Set initial values
+            updateBudgetPreview();
+            
+            // Add CSS for option cards
+            const style = document.createElement('style');
+            style.textContent = `
+                .budget-type-option, .experience-option {
+                    cursor: pointer;
+                }
+                .budget-type-option input, .experience-option input {
+                    display: none;
+                }
+                .option-card {
+                    background: var(--bg-secondary);
+                    border: 2px solid var(--border-color);
+                    border-radius: 10px;
+                    padding: 20px;
+                    text-align: center;
+                    transition: all 0.3s;
+                }
+                .budget-type-option input:checked + .option-card,
+                .experience-option input:checked + .option-card {
+                    border-color: var(--gold);
+                    background: var(--bg-primary);
+                    transform: scale(1.05);
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

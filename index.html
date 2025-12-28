@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineTasks Pro - Ultimate Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Enhanced Color Theme */
+            --gold: #FFD700;
+            --gold-dark: #B8860B;
+            --black: #000000;
+            --black-light: #1A1A1A;
+            --blue: #1E90FF;
+            --blue-light: #87CEEB;
+            --green: #32CD32;
+            --green-light: #90EE90;
+            --red: #FF4500;
+            --red-light: #FF7F50;
+            --purple: #9B30FF;
+            --pink: #FF1493;
+            --cyan: #00CED1;
+            --orange: #FF8C00;
+            
+            /* UI Colors */
+            --bg-primary: #000000;
+            --bg-secondary: #121212;
+            --bg-tertiary: #1E1E1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-tertiary: #808080;
+            --border-color: #2D2D2D;
+            --card-bg: #1A1A1A;
+            --hover-bg: #2A2A2A;
+            
+            /* Gradients */
+            --gradient-gold: linear-gradient(135deg, #FFD700, #FFA500);
+            --gradient-premium: linear-gradient(135deg, #FFD700, #FF69B4, #9370DB);
+            --gradient-blue: linear-gradient(135deg, #1E90FF, #00BFFF);
+            --gradient-green: linear-gradient(135deg, #32CD32, #00FA9A);
+            --gradient-red: linear-gradient(135deg, #FF4500, #FF6347);
+            --gradient-purple: linear-gradient(135deg, #9B30FF, #BA55D3);
+        }
+
+        .light-mode {
+            --bg-primary: #F8F9FA;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F1F3F4;
+            --text-primary: #202124;
+            --text-secondary: #5F6368;
+            --text-tertiary: #80868B;
+            --border-color: #DADCE0;
+            --card-bg: #FFFFFF;
+            --hover-bg: #F1F3F4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s, border-color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Segoe UI Emoji', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gold-dark);
+        }
+
+        /* MAIN LAYOUT */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 25px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 0 25px 25px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-gold);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--black);
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 800;
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* USER PROFILE CARD */
+        .user-profile-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 0 15px 25px;
+            border: 2px solid var(--border-color);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-gold);
+        }
+
+        .user-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            object-fit: cover;
+            margin: 0 auto 15px;
+            display: block;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .user-plan {
+            display: inline-block;
+            padding: 6px 15px;
+            background: var(--gradient-premium);
+            color: var(--black);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .user-plan.freemium {
+            background: var(--gradient-blue);
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .user-stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* NAVIGATION */
+        .nav-section {
+            margin-bottom: 30px;
+            padding: 0 15px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: var(--gradient-gold);
+            color: var(--black);
+            font-weight: 700;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--red);
+            color: white;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            padding: 20px 15px;
+            background: var(--card-bg);
+            margin: 20px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--gradient-blue);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(30, 144, 255, 0.3);
+        }
+
+        .action-btn.gold {
+            background: var(--gradient-gold);
+            color: var(--black);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            padding: 30px;
+            overflow-y: auto;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* TOP BAR */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notifications-btn {
+            position: relative;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--red);
+            color: white;
+            font-size: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* DASHBOARD GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        /* STATS CARDS */
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .stat-card:nth-child(1)::before { background: var(--gradient-gold); }
+        .stat-card:nth-child(2)::before { background: var(--gradient-blue); }
+        .stat-card:nth-child(3)::before { background: var(--gradient-green); }
+        .stat-card:nth-child(4)::before { background: var(--gradient-purple); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon {
+            font-size: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-card:nth-child(1) .stat-icon { background: rgba(255, 215, 0, 0.2); color: var(--gold); }
+        .stat-card:nth-child(2) .stat-icon { background: rgba(30, 144, 255, 0.2); color: var(--blue); }
+        .stat-card:nth-child(3) .stat-icon { background: rgba(50, 205, 50, 0.2); color: var(--green); }
+        .stat-card:nth-child(4) .stat-icon { background: rgba(155, 48, 255, 0.2); color: var(--purple); }
+
+        .trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .trend.up {
+            color: var(--green);
+        }
+
+        .trend.down {
+            color: var(--red);
+        }
+
+        .stat-value-large {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .stat-label-large {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* FEATURED SECTIONS */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 50px 0 25px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .view-all {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* MOVIE GRID */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .movie-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .movie-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .movie-badges {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .movie-badge {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+        }
+
+        .movie-badge.premium {
+            background: var(--gradient-gold);
+            color: var(--black);
+        }
+
+        .movie-badge.new {
+            background: var(--gradient-green);
+            color: var(--black);
+        }
+
+        .movie-badge.trending {
+            background: var(--gradient-red);
+            color: white;
+        }
+
+        .movie-content {
+            padding: 20px;
+        }
+
+        .movie-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .movie-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .movie-rating {
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .movie-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .movie-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .movie-uploader {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .uploader-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .uploader-info h4 {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .uploader-info span {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .movie-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .movie-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .movie-btn.play {
+            background: var(--gradient-gold);
+            color: var(--black);
+            border: none;
+        }
+
+        /* GIGS GRID */
+        .gigs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .gig-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .gig-card:hover {
+            border-color: var(--blue);
+            transform: translateY(-5px);
+        }
+
+        .gig-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .gig-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .gig-budget {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .gig-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .gig-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .gig-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .skill-tag {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-radius: 15px;
+            font-size: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .gig-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gig-client {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .client-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .client-info h4 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .client-rating {
+            color: var(--gold);
+            font-size: 12px;
+        }
+
+        .apply-btn {
+            padding: 12px 25px;
+            background: var(--gradient-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ACTIVITY FEED */
+        .activity-feed {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 50px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .activity-icon.earnings { background: rgba(50, 205, 50, 0.2); color: var(--green); }
+        .activity-icon.task { background: rgba(30, 144, 255, 0.2); color: var(--blue); }
+        .activity-icon.movie { background: rgba(255, 215, 0, 0.2); color: var(--gold); }
+        .activity-icon.chat { background: rgba(155, 48, 255, 0.2); color: var(--purple); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .activity-amount {
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        /* QUICK STATS WIDGET */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .stat-widget {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+        }
+
+        .stat-widget-icon {
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .stat-widget-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-widget-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* EARNINGS CHART */
+        .earnings-chart {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 50px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        /* PREMIUM BANNER */
+        .premium-banner {
+            background: var(--gradient-premium);
+            border-radius: 25px;
+            padding: 40px;
+            color: var(--black);
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="rgba(255,255,255,0.1)" d="M0,0 L100,100"/></svg>');
+        }
+
+        .premium-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .premium-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .premium-feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .premium-feature i {
+            font-size: 24px;
+        }
+
+        .upgrade-btn {
+            background: var(--black);
+            color: var(--gold);
+            border: none;
+            padding: 18px 40px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .upgrade-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 50px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            color: var(--gold);
+        }
+
+        /* MODAL FOR MOVIE THUMBNAILS */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .movie-modal {
+            background: var(--card-bg);
+            border-radius: 25px;
+            width: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlide 0.3s;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .modal-header {
+            padding: 40px 40px 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-subtitle {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .modal-grid {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 250px 1fr;
+            }
+            
+            .movie-grid, .gigs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                z-index: 1000;
+                width: 320px;
+                transition: left 0.3s;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 60px;
+                height: 60px;
+                background: var(--gradient-gold);
+                color: var(--black);
+                border: none;
+                border-radius: 50%;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 999;
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .top-bar {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .stat-value-large {
+                font-size: 36px;
+            }
+            
+            .movie-grid, .gigs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .premium-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- MOBILE MENU BUTTON -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">CT</div>
+                    <div>
+                        <div class="logo-text">CineTasks Pro</div>
+                        <div class="logo-subtitle">Earn & Entertain</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER PROFILE CARD -->
+            <div class="user-profile-card">
+                <img src="https://picsum.photos/200?random=user1" alt="User" class="user-avatar">
+                <div class="user-name" id="userName">Chinedu Obi</div>
+                <div class="user-plan premium">⭐ PREMIUM</div>
+                
+                <div class="user-stats">
+                    <div class="user-stat">
+                        <div class="stat-value">₦25K</div>
+                        <div class="stat-label">Earned</div>
+                    </div>
+                    <div class="user-stat">
+                        <div class="stat-value">142</div>
+                        <div class="stat-label">Votes</div>
+                    </div>
+                    <div class="user-stat">
+                        <div class="stat-value">47</div>
+                        <div class="stat-label">Tasks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN NAVIGATION -->
+            <div class="nav-section">
+                <div class="nav-title">Dashboard</div>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-home nav-icon"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="gig-masters.html" class="nav-link">
+                            <i class="fas fa-briefcase nav-icon"></i>
+                            Gig Masters
+                            <span class="nav-badge">12</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="community-chat.html" class="nav-link">
+                            <i class="fas fa-comments nav-icon"></i>
+                            Community Chat
+                            <span class="nav-badge">3</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="movie-player.html" class="nav-link">
+                            <i class="fas fa-film nav-icon"></i>
+                            Watch Movies
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- EARNINGS NAV -->
+            <div class="nav-section">
+                <div class="nav-title">Earnings</div>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <i class="fas fa-wallet nav-icon"></i>
+                            Wallet
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-chart-line nav-icon"></i>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <i class="fas fa-history nav-icon"></i>
+                            History
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="quick-actions">
+                <button class="action-btn" onclick="openMovieModal()">
+                    <i class="fas fa-play-circle"></i>
+                    Watch Videos
+                </button>
+                <button class="action-btn gold" onclick="window.location.href='post-gig.html'">
+                    <i class="fas fa-plus-circle"></i>
+                    Post a Gig
+                </button>
+            </div>
+
+            <!-- SYSTEM NAV -->
+            <div class="nav-section">
+                <div class="nav-title">System</div>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <i class="fas fa-user nav-icon"></i>
+                            Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="admin.html" class="nav-link">
+                            <i class="fas fa-crown nav-icon"></i>
+                            Admin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-cog nav-icon"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-question-circle nav-icon"></i>
+                            Help
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- TOP BAR -->
+            <div class="top-bar">
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Welcome back! Here's what's happening today.</p>
+                </div>
+                
+                <div class="top-bar-actions">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="notifications-btn" id="notificationsBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            12.5%
+                        </div>
+                    </div>
+                    <div class="stat-value-large">₦25,450</div>
+                    <div class="stat-label-large">Total Earnings</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            8.3%
+                        </div>
+                    </div>
+                    <div class="stat-value-large">12</div>
+                    <div class="stat-label-large">Active Gigs</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <div class="trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            24.7%
+                        </div>
+                    </div>
+                    <div class="stat-value-large">3.2K</div>
+                    <div class="stat-label-large">Movie Views</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="trend down">
+                            <i class="fas fa-arrow-down"></i>
+                            3.1%
+                        </div>
+                    </div>
+                    <div class="stat-value-large">156</div>
+                    <div class="stat-label-large">Unread Messages</div>
+                </div>
+            </div>
+
+            <!-- QUICK STATS -->
+            <div class="quick-stats">
+                <div class="stat-widget">
+                    <div class="stat-widget-icon" style="color: var(--gold);">
+                        <i class="fas fa-vote-yea"></i>
+                    </div>
+                    <div class="stat-widget-value">142</div>
+                    <div class="stat-widget-label">Votes Today</div>
+                </div>
+                
+                <div class="stat-widget">
+                    <div class="stat-widget-icon" style="color: var(--blue);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-widget-value">47h</div>
+                    <div class="stat-widget-label">Watch Time</div>
+                </div>
+                
+                <div class="stat-widget">
+                    <div class="stat-widget-icon" style="color: var(--green);">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="stat-widget-value">24</div>
+                    <div class="stat-widget-label">Referrals</div>
+                </div>
+                
+                <div class="stat-widget">
+                    <div class="stat-widget-icon" style="color: var(--purple);">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-widget-value">#5</div>
+                    <div class="stat-widget-label">Your Rank</div>
+                </div>
+            </div>
+
+            <!-- TRENDING MOVIES -->
+            <div class="section-header">
+                <h2 class="section-title">🎬 Trending Movies</h2>
+                <a href="#" class="view-all" onclick="openMovieModal()">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="movie-grid">
+                <!-- Movie cards will be loaded dynamically -->
+            </div>
+
+            <!-- HOT GIGS -->
+            <div class="section-header">
+                <h2 class="section-title">⚡ Hot Gigs</h2>
+                <a href="gig-masters.html" class="view-all">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="gigs-grid">
+                <!-- Gig cards will be loaded dynamically -->
+            </div>
+
+            <!-- EARNINGS CHART -->
+            <div class="earnings-chart">
+                <div class="chart-header">
+                    <h2 class="section-title">📈 Earnings Overview</h2>
+                    <select class="form-select" style="background: var(--bg-tertiary); border: 2px solid var(--border-color); padding: 10px 15px; border-radius: 12px;">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-bar" style="margin-right: 10px;"></i>
+                    Earnings chart will appear here
+                </div>
+            </div>
+
+            <!-- ACTIVITY FEED -->
+            <div class="section-header">
+                <h2 class="section-title">📋 Recent Activity</h2>
+            </div>
+            
+            <div class="activity-feed">
+                <!-- Activity items will be loaded dynamically -->
+            </div>
+
+            <!-- PREMIUM BANNER -->
+            <div class="premium-banner">
+                <h3 class="premium-title">🚀 Upgrade to Premium</h3>
+                <p>Unlock all features and earn 3x more!</p>
+                
+                <div class="premium-features">
+                    <div class="premium-feature">
+                        <i class="fas fa-ad"></i>
+                        <div>No Ads Ever</div>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-bolt"></i>
+                        <div>24-hour Payouts</div>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-chart-line"></i>
+                        <div>Advanced Analytics</div>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-crown"></i>
+                        <div>Premium Badge</div>
+                    </div>
+                </div>
+                
+                <button class="upgrade-btn" onclick="upgradeToPremium()">
+                    <i class="fas fa-crown"></i>
+                    Upgrade Now - ₦2,000/month
+                </button>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="footer">
+                <div class="footer-links">
+                    <a href="#" class="footer-link">About</a>
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link">Contact</a>
+                    <a href="#" class="footer-link">Help</a>
+                </div>
+                <p>© 2024 CineTasks Pro. All rights reserved.</p>
+                <p style="margin-top: 10px; font-size: 12px; color: var(--text-tertiary);">
+                    <i class="fas fa-users" style="margin-right: 5px;"></i>
+                    1,248 users online
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOVIE THUMBNAIL MODAL -->
+    <div class="modal-overlay" id="movieModal">
+        <div class="movie-modal">
+            <button class="modal-close" onclick="closeMovieModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">🎬 All Movies</h2>
+                <p class="modal-subtitle">Browse and watch our entire collection</p>
+            </div>
+            
+            <div class="modal-grid" id="movieModalGrid">
+                <!-- All movies will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Telegram Integration
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.setHeaderColor('#FFD700');
+        tg.setBackgroundColor('#000000');
+
+        // Get Telegram user data
+        const user = tg.initDataUnsafe.user || {};
+        document.getElementById('userName').textContent = 
+            user.first_name ? `${user.first_name} ${user.last_name || ''}` : 'User';
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        let isDarkMode = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.body.classList.add('light-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 992 && 
+                !sidebar.contains(e.target) && 
+                !mobileMenuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Sample Data
+        const movies = [
+            {
+                id: 1,
+                title: "The Last Warrior: Kingdom's End",
+                thumbnail: "https://picsum.photos/400/300?random=1",
+                description: "An epic fantasy adventure where a lone warrior must protect the kingdom from dark forces threatening to destroy everything.",
+                year: 2024,
+                duration: "2h 15m",
+                rating: 8.5,
+                genre: "Action, Fantasy",
+                isPremium: true,
+                isNew: true,
+                uploader: {
+                    name: "MovieHub NG",
+                    avatar: "https://picsum.photos/50?random=uploader1",
+                    plan: "premium"
+                },
+                views: "12.4K",
+                earnings: "₦45,200"
+            },
+            {
+                id: 2,
+                title: "Midnight Heist: Lagos Edition",
+                thumbnail: "https://picsum.photos/400/300?random=2",
+                description: "A crew of skilled thieves plans the ultimate bank robbery in the heart of Lagos. Full of twists and suspense.",
+                year: 2023,
+                duration: "1h 48m",
+                rating: 7.8,
+                genre: "Thriller, Crime",
+                isPremium: false,
+                isTrending: true,
+                uploader: {
+                    name: "Nollywood Pro",
+                    avatar: "https://picsum.photos/50?random=uploader2",
+                    plan: "premium"
+                },
+                views: "8.7K",
+                earnings: "₦28,500"
+            },
+            {
+                id: 3,
+                title: "Cosmic Journey: Beyond Stars",
+                thumbnail: "https://picsum.photos/400/300?random=3",
+                description: "Intergalactic adventure through space and time. Stunning visuals and mind-bending storyline.",
+                year: 2024,
+                duration: "2h 30m",
+                rating: 9.2,
+                genre: "Sci-Fi, Adventure",
+                isPremium: true,
+                isNew: true,
+                uploader: {
+                    name: "Space Films Inc",
+                    avatar: "https://picsum.photos/50?random=uploader3",
+                    plan: "premium"
+                },
+                views: "15.2K",
+                earnings: "₦62,800"
+            },
+            {
+                id: 4,
+                title: "Silent Whispers: The Haunting",
+                thumbnail: "https://picsum.photos/400/300?random=4",
+                description: "Psychological horror that will keep you on the edge of your seat. Based on true events.",
+                year: 2023,
+                duration: "1h 52m",
+                rating: 7.2,
+                genre: "Horror, Mystery",
+                isPremium: false,
+                uploader: {
+                    name: "Horror Studio",
+                    avatar: "https://picsum.photos/50?random=uploader4",
+                    plan: "freemium"
+                },
+                views: "5.4K",
+                earnings: "₦18,300"
+            }
+        ];
+
+        const gigs = [
+            {
+                id: 1,
+                title: "Modern Logo Design for Tech Startup",
+                budget: "₦15,000 - ₦25,000",
+                description: "Looking for a creative designer to create a modern, minimalist logo for our new tech startup. Should represent innovation and technology.",
+                skills: ["Logo Design", "Branding", "Adobe Illustrator", "Minimalist"],
+                timeline: "3 days",
+                applications: 12,
+                client: {
+                    name: "TechNova Inc.",
+                    avatar: "https://picsum.photos/50?random=client1",
+                    rating: 4.8
+                }
+            },
+            {
+                id: 2,
+                title: "E-commerce Website Development",
+                budget: "₦80,000 - ₦150,000",
+                description: "Need a full e-commerce website with payment integration, product catalog, and admin panel. Must be mobile responsive.",
+                skills: ["Web Development", "E-commerce", "React", "Node.js"],
+                timeline: "2 weeks",
+                applications: 8,
+                client: {
+                    name: "ShopEasy NG",
+                    avatar: "https://picsum.photos/50?random=client2",
+                    rating: 4.9
+                }
+            },
+            {
+                id: 3,
+                title: "Social Media Content Writer",
+                budget: "₦5,000/week",
+                description: "Daily social media posts for Instagram and Twitter. Engaging content that drives interaction and follows.",
+                skills: ["Content Writing", "Social Media", "Copywriting"],
+                timeline: "Ongoing",
+                applications: 24,
+                client: {
+                    name: "BrandBoost Agency",
+                    avatar: "https://picsum.photos/50?random=client3",
+                    rating: 4.7
+                }
+            }
+        ];
+
+        const activities = [
+            {
+                icon: "earnings",
+                text: "You earned <span class='activity-amount'>₦1,250</span> from movie views",
+                time: "2 hours ago",
+                type: "earnings"
+            },
+            {
+                icon: "task",
+                text: "Your gig application for 'Logo Design' was accepted",
+                time: "5 hours ago",
+                type: "task"
+            },
+            {
+                icon: "movie",
+                text: "You voted for 'The Last Warrior' in movie voting",
+                time: "1 day ago",
+                type: "movie"
+            },
+            {
+                icon: "chat",
+                text: "Received a tip of <span class='activity-amount'>₦500</span> in community chat",
+                time: "2 days ago",
+                type: "chat"
+            }
+        ];
+
+        // Render Movies
+        function renderMovies() {
+            const container = document.querySelector('.movie-grid');
+            container.innerHTML = movies.map(movie => `
+                <div class="movie-card" onclick="playMovie(${movie.id})">
+                    <img src="${movie.thumbnail}" alt="${movie.title}" class="movie-thumbnail">
+                    
+                    <div class="movie-badges">
+                        ${movie.isPremium ? '<span class="movie-badge premium">⭐ PREMIUM</span>' : ''}
+                        ${movie.isNew ? '<span class="movie-badge new">🆕 NEW</span>' : ''}
+                        ${movie.isTrending ? '<span class="movie-badge trending">🔥 TRENDING</span>' : ''}
+                    </div>
+                    
+                    <div class="movie-content">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        
+                        <div class="movie-meta">
+                            <span class="movie-rating">★ ${movie.rating}/10</span>
+                            <span>${movie.year}</span>
+                            <span>${movie.duration}</span>
+                        </div>
+                        
+                        <p class="movie-description">${movie.description}</p>
+                        
+                        <div class="movie-footer">
+                            <div class="movie-uploader">
+                                <img src="${movie.uploader.avatar}" alt="${movie.uploader.name}" class="uploader-avatar">
+                                <div class="uploader-info">
+                                    <h4>${movie.uploader.name}</h4>
+                                    <span>${movie.uploader.plan === 'premium' ? '⭐ Premium' : '🎯 Freemium'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="movie-actions">
+                                <button class="movie-btn" onclick="event.stopPropagation(); likeMovie(${movie.id})">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="movie-btn play">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Gigs
+        function renderGigs() {
+            const container = document.querySelector('.gigs-grid');
+            container.innerHTML = gigs.map(gig => `
+                <div class="gig-card">
+                    <div class="gig-header">
+                        <h3 class="gig-title">${gig.title}</h3>
+                        <div class="gig-budget">${gig.budget}</div>
+                    </div>
+                    
+                    <div class="gig-meta">
+                        <span><i class="far fa-clock"></i> ${gig.timeline}</span>
+                        <span><i class="fas fa-users"></i> ${gig.applications} applications</span>
+                    </div>
+                    
+                    <p class="gig-description">${gig.description}</p>
+                    
+                    <div class="gig-skills">
+                        ${gig.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                    
+                    <div class="gig-footer">
+                        <div class="gig-client">
+                            <img src="${gig.client.avatar}" alt="${gig.client.name}" class="client-avatar">
+                            <div class="client-info">
+                                <h4>${gig.client.name}</h4>
+                                <div class="client-rating">★ ${gig.client.rating}/5</div>
+                            </div>
+                        </div>
+                        
+                        <button class="apply-btn" onclick="applyToGig(${gig.id})">
+                            Apply Now
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Activities
+        function renderActivities() {
+            const container = document.querySelector('.activity-feed');
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.type}">
+                        <i class="fas fa-${activity.type === 'earnings' ? 'money-bill-wave' : 
+                                           activity.type === 'task' ? 'briefcase' : 
+                                           activity.type === 'movie' ? 'film' : 'comments'}"></i>
+                    </div>
+                    
+                    <div class="activity-content">
+                        <div class="activity-text">${activity.text}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Movie Modal Functions
+        function openMovieModal() {
+            const modal = document.getElementById('movieModal');
+            const grid = document.getElementById('movieModalGrid');
+            
+            grid.innerHTML = movies.map(movie => `
+                <div class="movie-card" onclick="playMovie(${movie.id}); closeMovieModal()">
+                    <img src="${movie.thumbnail}" alt="${movie.title}" class="movie-thumbnail">
+                    
+                    <div class="movie-badges">
+                        ${movie.isPremium ? '<span class="movie-badge premium">⭐ PREMIUM</span>' : ''}
+                        ${movie.isNew ? '<span class="movie-badge new">🆕 NEW</span>' : ''}
+                        ${movie.isTrending ? '<span class="movie-badge trending">🔥 TRENDING</span>' : ''}
+                    </div>
+                    
+                    <div class="movie-content">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        
+                        <div class="movie-meta">
+                            <span class="movie-rating">★ ${movie.rating}/10</span>
+                            <span>${movie.year}</span>
+                            <span>${movie.duration}</span>
+                        </div>
+                        
+                        <p class="movie-description">${movie.description}</p>
+                        
+                        <div class="movie-footer">
+                            <div class="movie-uploader">
+                                <img src="${movie.uploader.avatar}" alt="${movie.uploader.name}" class="uploader-avatar">
+                                <div class="uploader-info">
+                                    <h4>${movie.uploader.name}</h4>
+                                    <span>${movie.uploader.plan === 'premium' ? '⭐ Premium' : '🎯 Freemium'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="movie-actions">
+                                <button class="movie-btn play">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMovieModal() {
+            document.getElementById('movieModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('movieModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('movieModal')) {
+                closeMovieModal();
+            }
+        });
+
+        // Action Functions
+        function playMovie(movieId) {
+            const movie = movies.find(m => m.id === movieId);
+            if (movie) {
+                if (movie.isPremium && !confirm(`"${movie.title}" is a Premium movie. Upgrade to watch?`)) {
+                    return;
+                }
+                window.location.href = `movie-player.html?id=${movieId}`;
+            }
+        }
+
+        function likeMovie(movieId) {
+            alert(`Liked movie ${movieId}`);
+        }
+
+        function applyToGig(gigId) {
+            const gig = gigs.find(g => g.id === gigId);
+            if (gig) {
+                alert(`Applying to gig: "${gig.title}"`);
+                // In real app, redirect to application page
+            }
+        }
+
+        function upgradeToPremium() {
+            if (confirm('Upgrade to Premium for ₦2,000/month?\n\nBenefits:\n• No ads\n• 24-hour payouts\n• Advanced analytics\n• Premium badge')) {
+                alert('Redirecting to payment...');
+                // In real app, redirect to payment page
+            }
+        }
+
+        // Notifications
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            alert('Notifications:\n\n• New gig matching your skills\n• Movie voting ends in 2 hours\n• You received a tip of ₦500\n• 3 new messages\n• Weekly earnings report ready');
+        });
+
+        // Initialize everything
+        function init() {
+            renderMovies();
+            renderGigs();
+            renderActivities();
+            
+            // Add click handlers to nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.getAttribute('href') === '#') {
+                        e.preventDefault();
+                    }
+                    
+                    // Update active state
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

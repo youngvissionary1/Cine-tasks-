@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineTasks Pro - Admin Dashboard</title>
+    <style>
+        :root {
+            /* Dark Mode (Default) */
+            --gold: #FFD700;
+            --black: #000000;
+            --blue: #1E90FF;
+            --green: #32CD32;
+            --red: #FF4500;
+            --yellow: #FFD700;
+            --bg-primary: #000000;
+            --bg-secondary: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --card-bg: #1A1A1A;
+            --border-color: #333333;
+        }
+
+        .light-mode {
+            /* Light Mode */
+            --gold: #B8860B;
+            --black: #333333;
+            --blue: #007BFF;
+            --green: #28A745;
+            --red: #DC3545;
+            --yellow: #FFC107;
+            --bg-primary: #F5F5F5;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--gold), var(--black));
+            border-radius: 15px;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 2px solid var(--gold);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid;
+        }
+
+        .earnings-card {
+            border-color: var(--green);
+            grid-column: span 2;
+        }
+
+        .users-card {
+            border-color: var(--blue);
+        }
+
+        .movies-card {
+            border-color: var(--gold);
+        }
+
+        .system-card {
+            border-color: var(--red);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: inherit;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: var(--bg-secondary);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .movie-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .slot-card {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid var(--border-color);
+        }
+
+        .slot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .slot-number {
+            background: var(--gold);
+            color: var(--black);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--blue);
+        }
+
+        .slot-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .update-btn {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            color: white;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, var(--red), var(--yellow));
+            color: white;
+        }
+
+        .quick-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .quick-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: var(--black);
+            color: var(--gold);
+            text-decoration: none;
+            border-radius: 10px;
+            border: 2px solid var(--gold);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .earnings-card {
+                grid-column: span 1;
+            }
+            
+            .admin-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="admin-header">
+        <div class="admin-title">
+            <span>👑</span>
+            <div>
+                <div>ADMIN DASHBOARD</div>
+                <div style="font-size: 12px; opacity: 0.8;">Full System Control Panel</div>
+            </div>
+        </div>
+        <div class="admin-controls">
+            <button class="control-btn" onclick="toggleTheme()">
+                🌓 Theme
+            </button>
+            <button class="control-btn" onclick="backupData()">
+                💾 Backup
+            </button>
+            <button class="control-btn" onclick="logoutAdmin()">
+                🔓 Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- EARNINGS CARD -->
+        <div class="dashboard-card earnings-card">
+            <div class="card-title" style="color: var(--green);">
+                💰 EARNINGS OVERVIEW
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">TOTAL EARNINGS</div>
+                    <div class="stat-value">₦25,450</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%; background: var(--green);"></div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">TODAY</div>
+                    <div class="stat-value">₦1,250</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%; background: var(--blue);"></div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">THIS WEEK</div>
+                    <div class="stat-value">₦8,500</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 68%; background: var(--gold);"></div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">THIS MONTH</div>
+                    <div class="stat-value">₦15,800</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 52%; background: var(--red);"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Movie Votes</span>
+                    <span style="color: var(--green);">65% (₦16,542)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Premium Subscriptions</span>
+                    <span style="color: var(--blue);">25% (₦6,362)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Other Sources</span>
+                    <span style="color: var(--gold);">10% (₦2,546)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- USERS CARD -->
+        <div class="dashboard-card users-card">
+            <div class="card-title" style="color: var(--blue);">
+                👥 USER MANAGEMENT
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">TOTAL USERS</div>
+                    <div class="stat-value">1,248</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">ACTIVE TODAY</div>
+                    <div class="stat-value">356</div>
+                </div>
+            </div>
+            
+            <div class="quick-controls">
+                <button class="quick-btn" onclick="viewUsers()">
+                    👁️ View All
+                </button>
+                <button class="quick-btn" onclick="banUser()">
+                    ⛔ Ban User
+                </button>
+                <button class="quick-btn" onclick="adjustBalance()">
+                    💰 Adjust Balance
+                </button>
+                <button class="quick-btn" onclick="sendBroadcast()">
+                    📢 Broadcast
+                </button>
+            </div>
+        </div>
+
+        <!-- MOVIES CARD -->
+        <div class="dashboard-card movies-card">
+            <div class="card-title" style="color: var(--gold);">
+                🎬 MOVIE SLOTS (5)
+            </div>
+            <div class="movie-slots" id="movieSlots">
+                <!-- Movie slots will be loaded here -->
+            </div>
+        </div>
+
+        <!-- SYSTEM CARD -->
+        <div class="dashboard-card system-card">
+            <div class="card-title" style="color: var(--red);">
+                ⚙️ SYSTEM CONTROLS
+            </div>
+            <div class="quick-controls">
+                <button class="quick-btn" onclick="resetAllVotes()">
+                    🔄 Reset Votes
+                </button>
+                <button class="quick-btn" onclick="clearDatabase()">
+                    🗑️ Clear DB
+                </button>
+                <button class="quick-btn" onclick="updateFees()">
+                    💸 Update Fees
+                </button>
+                <button class="quick-btn" onclick="maintenanceMode()">
+                    🔧 Maintenance
+                </button>
+                <button class="quick-btn" onclick="exportData()">
+                    📤 Export Data
+                </button>
+                <button class="quick-btn" onclick="viewLogs()">
+                    📋 View Logs
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Back to Voting Page</a>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        // Movie slots data
+        const movieSlots = [
+            { id: 1, title: "The Last Warrior", driveUrl: "https://drive.google.com/...", thumbnail: "https://picsum.photos/400/300?random=1", votes: 142, active: true },
+            { id: 2, title: "Midnight Heist", driveUrl: "https://drive.google.com/...", thumbnail: "https://picsum.photos/400/300?random=2", votes: 89, active: true },
+            { id: 3, title: "Cosmic Journey", driveUrl: "https://drive.google.com/...", thumbnail: "https://picsum.photos/400/300?random=3", votes: 156, active: true },
+            { id: 4, title: "Silent Whispers", driveUrl: "https://drive.google.com/...", thumbnail: "https://picsum.photos/400/300?random=4", votes: 78, active: false },
+            { id: 5, title: "Rising Phoenix", driveUrl: "https://drive.google.com/...", thumbnail: "https://picsum.photos/400/300?random=5", votes: 95, active: true }
+        ];
+
+        // Render movie slots
+        function renderMovieSlots() {
+            const container = document.getElementById('movieSlots');
+            container.innerHTML = '';
+            
+            movieSlots.forEach(slot => {
+                const slotCard = document.createElement('div');
+                slotCard.className = 'slot-card';
+                
+                slotCard.innerHTML = `
+                    <div class="slot-header">
+                        <div class="slot-number">${slot.id}</div>
+                        <div style="color: ${slot.active ? 'var(--green)' : 'var(--red)'}; font-size: 12px;">
+                            ${slot.active ? '🟢 ACTIVE' : '🔴 INACTIVE'}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Movie Title</label>
+                        <input type="text" class="form-input" value="${slot.title}" id="title${slot.id}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Google Drive Video URL</label>
+                        <input type="url" class="form-input" value="${slot.driveUrl}" id="driveUrl${slot.id}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Thumbnail URL</label>
+                        <input type="url" class="form-input" value="${slot.thumbnail}" id="thumbnail${slot.id}">
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin: 15px 0; font-size: 14px;">
+                        <span>Current Votes: <strong style="color: var(--gold);">${slot.votes}</strong></span>
+                        <button onclick="resetVotes(${slot.id})" style="background: none; border: none; color: var(--red); cursor: pointer;">
+                            Reset Votes
+                        </button>
+                    </div>
+                    
+                    <div class="slot-actions">
+                        <button class="action-btn update-btn" onclick="updateMovie(${slot.id})">
+                            💾 Update
+                        </button>
+                        <button class="action-btn reset-btn" onclick="toggleMovie(${slot.id})">
+                            ${slot.active ? '⏸️ Deactivate' : '▶️ Activate'}
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(slotCard);
+            });
+        }
+
+        // Admin functions
+        function updateMovie(slotId) {
+            const title = document.getElementById(`title${slotId}`).value;
+            const driveUrl = document.getElementById(`driveUrl${slotId}`).value;
+            const thumbnail = document.getElementById(`thumbnail${slotId}`).value;
+            
+            const movie = movieSlots.find(m => m.id === slotId);
+            if (movie) {
+                movie.title = title;
+                movie.driveUrl = driveUrl;
+                movie.thumbnail = thumbnail;
+                alert(`Movie slot ${slotId} updated successfully! 🎬`);
+            }
+        }
+
+        function toggleMovie(slotId) {
+            const movie = movieSlots.find(m => m.id === slotId);
+            if (movie) {
+                movie.active = !movie.active;
+                alert(`Movie ${slotId} ${movie.active ? 'activated' : 'deactivated'}!`);
+                renderMovieSlots();
+            }
+        }
+
+        function resetVotes(slotId) {
+            if (confirm(`Reset votes for slot ${slotId}? This cannot be undone.`)) {
+                const movie = movieSlots.find(m => m.id === slotId);
+                if (movie) {
+                    movie.votes = 0;
+                    alert(`Votes reset for "${movie.title}"`);
+                    renderMovieSlots();
+                }
+            }
+        }
+
+        function resetAllVotes() {
+            if (confirm('Reset ALL movie votes? This cannot be undone.')) {
+                movieSlots.forEach(movie => movie.votes = 0);
+                alert('All votes reset successfully!');
+                renderMovieSlots();
+            }
+        }
+
+        function backupData() {
+            const data = JSON.stringify(movieSlots, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cinetasks-backup-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            alert('Data backup downloaded! 💾');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Logout from admin panel?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Other control functions (stubs)
+        function viewUsers() { alert('User list would open here'); }
+        function banUser() { alert('Ban user interface'); }
+        function adjustBalance() { alert('Balance adjustment'); }
+        function sendBroadcast() { alert('Broadcast message'); }
+        function clearDatabase() { alert('Database cleared (not really)'); }
+        function updateFees() { alert('Update platform fees'); }
+        function maintenanceMode() { alert('Toggle maintenance mode'); }
+        function exportData() { alert('Export data to CSV'); }
+        function viewLogs() { alert('View system logs'); }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMovieSlots();
+        });
+    </script>
+</body>
+</html>

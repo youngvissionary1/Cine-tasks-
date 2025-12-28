@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Movie - CineTasks Pro</title>
+    <style>
+        :root {
+            /* Dark Mode (Default) */
+            --gold: #FFD700;
+            --black: #000000;
+            --blue: #1E90FF;
+            --green: #32CD32;
+            --red: #FF4500;
+            --yellow: #FFD700;
+            --bg-primary: #000000;
+            --bg-secondary: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --card-bg: #1A1A1A;
+            --border-color: #333333;
+        }
+
+        .light-mode {
+            /* Light Mode */
+            --gold: #B8860B;
+            --black: #333333;
+            --blue: #007BFF;
+            --green: #28A745;
+            --red: #DC3545;
+            --yellow: #FFC107;
+            --bg-primary: #F5F5F5;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .back-btn {
+            background: var(--black);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        .movie-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: var(--gold);
+            flex-grow: 1;
+        }
+
+        .theme-toggle {
+            background: var(--black);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .player-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--gold);
+        }
+
+        .quality-btn {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            color: white;
+        }
+
+        .fullscreen-btn {
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            color: var(--black);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, var(--red), var(--yellow));
+            color: white;
+        }
+
+        .movie-info {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid var(--border-color);
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 22px;
+            color: var(--gold);
+        }
+
+        .movie-rating {
+            background: var(--gold);
+            color: var(--black);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .movie-description {
+            line-height: 1.6;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .related-movies {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: var(--gold);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .related-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .related-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+        }
+
+        .related-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .related-info {
+            padding: 12px;
+        }
+
+        .related-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .related-rating {
+            color: var(--gold);
+            font-size: 12px;
+        }
+
+        .vote-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+            border: 2px solid var(--green);
+        }
+
+        .vote-title {
+            font-size: 22px;
+            color: var(--green);
+            margin-bottom: 15px;
+        }
+
+        .vote-btn {
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .vote-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(50, 205, 50, 0.4);
+        }
+
+        .vote-btn.voted {
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .player-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .movies-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="player-header">
+        <a href="index.html" class="back-btn">
+            ← Back to Voting
+        </a>
+        <div class="movie-title" id="currentMovieTitle">Loading Movie...</div>
+        <button class="theme-toggle" id="themeToggle">
+            🌙 Dark Mode
+        </button>
+    </div>
+
+    <div class="player-container">
+        <!-- Video Player -->
+        <div class="video-wrapper">
+            <iframe 
+                class="video-player" 
+                id="videoPlayer"
+                src="https://drive.google.com/file/d/1abcd1234/preview" 
+                allow="autoplay; encrypted-media; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <!-- Player Controls -->
+        <div class="player-controls">
+            <button class="control-btn quality-btn" onclick="changeQuality('720p')">
+                📺 HD 720p
+            </button>
+            <button class="control-btn fullscreen-btn" onclick="toggleFullscreen()">
+                ⛶ Fullscreen
+            </button>
+            <button class="control-btn download-btn" onclick="downloadMovie()">
+                ⬇️ Download
+            </button>
+        </div>
+
+        <!-- Vote Section -->
+        <div class="vote-section">
+            <div class="vote-title">LOVE THIS MOVIE?</div>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                Vote for this movie to help it win the weekly competition!
+            </p>
+            <button class="vote-btn" id="voteButton" onclick="voteForCurrentMovie()">
+                🗳️ VOTE FOR THIS MOVIE
+            </button>
+            <div id="voteCountDisplay" style="margin-top: 15px; font-size: 14px; color: var(--text-secondary);">
+                Current votes: <span id="currentVotes">0</span>
+            </div>
+        </div>
+
+        <!-- Movie Information -->
+        <div class="movie-info">
+            <div class="info-header">
+                <div class="info-title" id="movieInfoTitle">Movie Details</div>
+                <div class="movie-rating">★ 8.5/10</div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Duration</div>
+                    <div class="info-value">2h 15m</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Genre</div>
+                    <div class="info-value">Action, Adventure</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Release Year</div>
+                    <div class="info-value">2024</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Director</div>
+                    <div class="info-value">John Director</div>
+                </div>
+            </div>
+            
+            <div class="movie-description" id="movieDescription">
+                An epic fantasy adventure where a lone warrior must protect the kingdom from dark forces. 
+                With stunning visuals and an engaging storyline, this movie has captured the hearts of thousands.
+            </div>
+        </div>
+
+        <!-- Related Movies -->
+        <div class="related-movies">
+            <h2 class="section-title">More Movies You Might Like</h2>
+            <div class="movies-grid" id="relatedMovies">
+                <!-- Related movies will load here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        let isDarkMode = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+                themeToggle.textContent = '🌙 Dark Mode';
+            } else {
+                document.body.classList.add('light-mode');
+                themeToggle.textContent = '☀️ Light Mode';
+            }
+        });
+
+        // Current movie data
+        const currentMovie = {
+            id: 1,
+            title: "The Last Warrior",
+            description: "An epic fantasy adventure where a lone warrior must protect the kingdom from dark forces. With stunning visuals and an engaging storyline, this movie has captured the hearts of thousands.",
+            driveUrl: "https://drive.google.com/file/d/1abcd1234/preview",
+            votes: 142,
+            duration: "2h 15m",
+            genre: "Action, Adventure",
+            year: "2024",
+            director: "John Director",
+            rating: "8.5"
+        };
+
+        // Related movies
+        const relatedMovies = [
+            { id: 2, title: "Midnight Heist", thumbnail: "https://picsum.photos/300/200?random=2", rating: "7.8" },
+            { id: 3, title: "Cosmic Journey", thumbnail: "https://picsum.photos/300/200?random=3", rating: "8.9" },
+            { id: 4, title: "Silent Whispers", thumbnail: "https://picsum.photos/300/200?random=4", rating: "7.2" },
+            { id: 5, title: "Rising Phoenix", thumbnail: "https://picsum.photos/300/200?random=5", rating: "8.1" }
+        ];
+
+        // Initialize
+        function initPlayer() {
+            // Set current movie info
+            document.getElementById('currentMovieTitle').textContent = currentMovie.title;
+            document.getElementById('movieInfoTitle').textContent = currentMovie.title;
+            document.getElementById('movieDescription').textContent = currentMovie.description;
+            document.getElementById('videoPlayer').src = currentMovie.driveUrl;
+            document.getElementById('currentVotes').textContent = currentMovie.votes;
+            
+            // Load related movies
+            const relatedGrid = document.getElementById('relatedMovies');
+            relatedGrid.innerHTML = '';
+            
+            relatedMovies.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'related-card';
+                card.onclick = () => playRelatedMovie(movie.id);
+                
+                card.innerHTML = `
+                    <img src="${movie.thumbnail}" alt="${movie.title}" class="related-thumb">
+                    <div class="related-info">
+                        <div class="related-title">${movie.title}</div>
+                        <div class="related-rating">★ ${movie.rating}/10</div>
+                    </div>
+                `;
+                relatedGrid.appendChild(card);
+            });
+        }
+
+        // Voting function
+        let hasVoted = false;
+        function voteForCurrentMovie() {
+            if (hasVoted) {
+                alert('You have already voted for this movie!');
+                return;
+            }
+            
+            currentMovie.votes++;
+            hasVoted = true;
+            
+            const voteBtn = document.getElementById('voteButton');
+            voteBtn.textContent = '✅ VOTED!';
+            voteBtn.classList.add('voted');
+            voteBtn.disabled = true;
+            
+            document.getElementById('currentVotes').textContent = currentMovie.votes;
+            alert(`Thank you for voting! "${currentMovie.title}" now has ${currentMovie.votes} votes! 🎉`);
+        }
+
+        // Player controls
+        function changeQuality(quality) {
+            alert(`Switching to ${quality} quality...`);
+            // In real implementation, change video source
+        }
+
+        function toggleFullscreen() {
+            const iframe = document.getElementById('videoPlayer');
+            if (iframe.requestFullscreen) {
+                iframe.requestFullscreen();
+            } else if (iframe.webkitRequestFullscreen) {
+                iframe.webkitRequestFullscreen();
+            }
+        }
+
+        function downloadMovie() {
+            alert('Download feature available for premium users only!');
+            // In real implementation: window.open(downloadUrl);
+        }
+
+        function playRelatedMovie(movieId) {
+            alert(`Loading movie ${movieId}...`);
+            // In real implementation: load new movie data and update player
+        }
+
+        // Start player
+        document.addEventListener('DOMContentLoaded', initPlayer);
+    </script>
+</body>
+</html>

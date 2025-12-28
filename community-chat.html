@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Chat - CineTasks Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --gold: #FFD700;
+            --black: #000000;
+            --blue: #1E90FF;
+            --green: #32CD32;
+            --red: #FF4500;
+            --yellow: #FFD700;
+            --purple: #9B30FF;
+            --pink: #FF1493;
+            --bg-primary: #000000;
+            --bg-secondary: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --card-bg: #1A1A1A;
+            --border-color: #333333;
+            --chat-bg: #0A0A0A;
+            --sent-msg: #0066CC;
+            --received-msg: #2A2A2A;
+        }
+
+        .light-mode {
+            --gold: #B8860B;
+            --black: #333333;
+            --blue: #007BFF;
+            --green: #28A745;
+            --red: #DC3545;
+            --yellow: #FFC107;
+            --purple: #7B1FA2;
+            --pink: #C2185B;
+            --bg-primary: #F5F5F5;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+            --chat-bg: #F0F0F0;
+            --sent-msg: #0084FF;
+            --received-msg: #E4E6EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR - Communities & Chats List */
+        .sidebar {
+            width: 350px;
+            background: var(--bg-secondary);
+            border-right: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 2px solid var(--border-color);
+            background: linear-gradient(135deg, var(--gold), var(--black));
+            color: white;
+        }
+
+        .sidebar-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .search-bar {
+            margin: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Tabs */
+        .sidebar-tabs {
+            display: flex;
+            background: var(--bg-primary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            border-bottom: 3px solid transparent;
+        }
+
+        .sidebar-tab.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        /* Chats List */
+        .chats-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chat-item:hover, .chat-item.active {
+            background: var(--bg-primary);
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .chat-group-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            object-fit: cover;
+            margin-right: 15px;
+            position: relative;
+        }
+
+        .group-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--gold);
+            color: var(--black);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-last-message {
+            color: var(--text-secondary);
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .unread-badge {
+            background: var(--gold);
+            color: var(--black);
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* Communities List */
+        .communities-list {
+            padding: 20px;
+        }
+
+        .community-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .community-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .community-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .community-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            object-fit: cover;
+        }
+
+        .community-info {
+            flex: 1;
+        }
+
+        .community-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .community-members {
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .community-posts {
+            padding: 15px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .post-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-author {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .post-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* MAIN CHAT AREA */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-header-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-header-details h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header-status {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-action-btn {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .header-action-btn:hover {
+            border-color: var(--gold);
+            transform: scale(1.1);
+        }
+
+        /* MESSAGES AREA */
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .date-separator {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .date-separator::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .date-label {
+            background: var(--bg-secondary);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+        }
+
+        /* MESSAGE BUBBLES */
+        .message {
+            display: flex;
+            margin-bottom: 5px;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 10px;
+            align-self: flex-end;
+        }
+
+        .message-bubble {
+            padding: 12px 15px;
+            border-radius: 20px;
+            position: relative;
+            max-width: 100%;
+        }
+
+        .message.sent .message-bubble {
+            background: var(--sent-msg);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received .message-bubble {
+            background: var(--received-msg);
+            color: var(--text-primary);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-text {
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+
+        .read-receipt {
+            color: #4FC3F7;
+        }
+
+        /* SPECIAL MESSAGE TYPES */
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(30, 144, 255, 0.1);
+            border-radius: 25px;
+        }
+
+        .voice-play-btn {
+            background: var(--gold);
+            color: var(--black);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-duration {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .image-message {
+            max-width: 300px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .image-message img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .money-message {
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            color: var(--black);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .money-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--green);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .money-amount {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .money-note {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .money-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .money-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .accept-btn {
+            background: var(--green);
+            color: white;
+        }
+
+        .decline-btn {
+            background: var(--red);
+            color: white;
+        }
+
+        /* WATCH POSTS */
+        .watch-post {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 2px solid var(--border-color);
+        }
+
+        .post-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .post-author-info {
+            flex: 1;
+        }
+
+        .post-author-name {
+            font-weight: bold;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .post-content {
+            padding: 15px;
+        }
+
+        .post-text {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .post-media {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .post-media img, .post-media video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .post-action:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .post-action.active {
+            color: var(--gold);
+        }
+
+        /* MESSAGE INPUT */
+        .message-input-area {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-top: 2px solid var(--border-color);
+        }
+
+        .input-tools {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .tool-btn {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--gold);
+            transform: scale(1.1);
+        }
+
+        .tool-btn.active {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-size: 16px;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4);
+        }
+
+        /* EARNINGS DISPLAY */
+        .earnings-banner {
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            color: var(--black);
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .earnings-text {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .earnings-amount {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .earnings-detail {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .withdraw-btn {
+            background: var(--black);
+            color: var(--gold);
+            border: 2px solid var(--black);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .withdraw-btn:hover {
+            background: transparent;
+            color: var(--black);
+        }
+
+        /* RIGHT SIDEBAR - GROUP INFO */
+        .right-sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-left: 2px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .right-sidebar.active {
+            display: block;
+        }
+
+        .group-info-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .group-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .group-name-large {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .group-description {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .group-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .members-list {
+            margin-bottom: 30px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .member-item:hover {
+            background: var(--bg-primary);
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .member-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .member-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .admin-badge {
+            background: var(--gold);
+            color: var(--black);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .group-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .group-action-btn {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .group-action-btn:hover {
+            border-color: var(--gold);
+        }
+
+        .group-action-btn.danger {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* MODALS */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            color: var(--gold);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-primary);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 25px;
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid;
+        }
+
+        .modal-btn.primary {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .modal-btn.secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 300px;
+            }
+            
+            .right-sidebar {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .right-sidebar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 100;
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 100;
+                width: 100%;
+                max-width: 400px;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .chat-header-actions {
+                gap: 10px;
+            }
+            
+            .header-action-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                💬 Community Chat
+                <span style="font-size: 14px; opacity: 0.8;">Beta</span>
+            </div>
+            <div class="sidebar-subtitle">
+                Chat, Earn & Connect
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search chats, communities...">
+            <div class="search-icon">🔍</div>
+        </div>
+
+        <!-- Earnings Banner -->
+        <div class="earnings-banner">
+            <div>
+                <div class="earnings-text">Chat Earnings</div>
+                <div class="earnings-amount">₦1,250</div>
+                <div class="earnings-detail">+₦150 today</div>
+            </div>
+            <button class="withdraw-btn" onclick="openWithdrawModal()">
+                💰 Withdraw
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="sidebar-tabs">
+            <button class="sidebar-tab active" onclick="switchTab('chats')">
+                💬 Chats
+            </button>
+            <button class="sidebar-tab" onclick="switchTab('communities')">
+                👥 Communities
+            </button>
+            <button class="sidebar-tab" onclick="switchTab('watch')">
+                🎬 Watch Posts
+            </button>
+        </div>
+
+        <!-- Chats List -->
+        <div class="chats-list" id="chatsTab">
+            <!-- Chats will be loaded here -->
+        </div>
+
+        <!-- Communities List -->
+        <div class="communities-list" id="communitiesTab" style="display: none;">
+            <!-- Communities will be loaded here -->
+        </div>
+
+        <!-- Watch Posts -->
+        <div class="communities-list" id="watchTab" style="display: none;">
+            <!-- Watch posts will be loaded here -->
+        </div>
+    </div>
+
+    <!-- MAIN CHAT AREA -->
+    <div class="main-chat" id="mainChat">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <img src="https://picsum.photos/200?random=group1" alt="Group" class="chat-header-avatar">
+                <div class="chat-header-details">
+                    <h3 id="currentChatName">Select a chat</h3>
+                    <div class="chat-header-status" id="chatStatus">
+                        Tap on a chat to start messaging
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-header-actions">
+                <button class="header-action-btn" onclick="toggleRightSidebar()">
+                    👁️
+                </button>
+                <button class="header-action-btn" onclick="openVideoCall()">
+                    📹
+                </button>
+                <button class="header-action-btn" onclick="openEarnModal()">
+                    💸
+                </button>
+                <button class="header-action-btn" onclick="openGroupModal()">
+                    ➕
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="messages-area" id="messagesArea">
+            <!-- Messages will be loaded here -->
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-area">
+            <div class="input-tools">
+                <button class="tool-btn" onclick="toggleTool('emoji')">
+                    😊
+                </button>
+                <button class="tool-btn" onclick="toggleTool('gif')">
+                    🎬
+                </button>
+                <button class="tool-btn" onclick="toggleTool('voice')">
+                    🎤
+                </button>
+                <button class="tool-btn" onclick="toggleTool('camera')">
+                    📷
+                </button>
+                <button class="tool-btn" onclick="toggleTool('money')">
+                    💰
+                </button>
+                <button class="tool-btn" onclick="toggleTool('attach')">
+                    📎
+                </button>
+            </div>
+            
+            <div class="input-container">
+                <textarea 
+                    class="message-input" 
+                    id="messageInput"
+                    placeholder="Type a message..."
+                    rows="1"
+                ></textarea>
+                <button class="send-btn" onclick="sendMessage()">
+                    📤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR (Group Info) -->
+    <div class="right-sidebar" id="rightSidebar">
+        <div class="group-info-header">
+            <img src="https://picsum.photos/300?random=group1" alt="Group" class="group-avatar-large">
+            <h2 class="group-name-large">Movie Buffs Nigeria</h2>
+            <div class="group-description">
+                A community for Nigerian movie lovers. Discuss latest Nollywood releases, share reviews, and connect with fellow cinephiles.
+            </div>
+        </div>
+
+        <div class="group-stats">
+            <div class="stat-item">
+                <div class="stat-value">1,248</div>
+                <div class="stat-label">Members</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">₦25K</div>
+                <div class="stat-label">Paid Out</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">5.2K</div>
+                <div class="stat-label">Messages</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">347</div>
+                <div class="stat-label">Watch Posts</div>
+            </div>
+        </div>
+
+        <div class="members-list">
+            <h3 style="margin-bottom: 15px; color: var(--gold);">👑 Group Admins</h3>
+            <div class="member-item">
+                <img src="https://picsum.photos/100?random=admin1" alt="Admin" class="member-avatar">
+                <div class="member-name">Chinedu Obi</div>
+                <span class="admin-badge">Admin</span>
+            </div>
+            <div class="member-item">
+                <img src="https://picsum.photos/100?random=admin2" alt="Admin" class="member-avatar">
+                <div class="member-name">Amina Yusuf</div>
+                <span class="admin-badge">Admin</span>
+            </div>
+            
+            <h3 style="margin: 20px 0 15px; color: var(--gold);">👥 Top Contributors</h3>
+            <div class="member-item">
+                <img src="https://picsum.photos/100?random=user1" alt="User" class="member-avatar">
+                <div class="member-name">Mike Adeyemi</div>
+                <div class="member-role">+₦5,240 earned</div>
+            </div>
+            <div class="member-item">
+                <img src="https://picsum.photos/100?random=user2" alt="User" class="member-avatar">
+                <div class="member-name">Blessing Okoro</div>
+                <div class="member-role">+₦3,890 earned</div>
+            </div>
+        </div>
+
+        <div class="group-actions">
+            <button class="group-action-btn" onclick="openGroupSettings()">
+                ⚙️ Group Settings
+            </button>
+            <button class="group-action-btn" onclick="inviteMembers()">
+                👥 Invite Members
+            </button>
+            <button class="group-action-btn" onclick="shareGroup()">
+                🔗 Share Group
+            </button>
+            <button class="group-action-btn danger" onclick="leaveGroup()">
+                🚪 Leave Group
+            </button>
+        </div>
+    </div>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        💬
+    </button>
+
+    <!-- MODALS -->
+    
+    <!-- Earn Money Modal -->
+    <div class="modal" id="earnModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">💰 Earn Money in Chat</h2>
+                <button class="modal-close" onclick="closeModal('earnModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 48px;">💸</div>
+                    <h3 style="color: var(--gold); margin-bottom: 10px;">Active Earning Features</h3>
+                    <p style="color: var(--text-secondary);">
+                        Engage with these features to earn money while chatting
+                    </p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div class="stat-item" onclick="activateFeature('voice')" style="cursor: pointer;">
+                        <div style="font-size: 24px;">🎤</div>
+                        <div class="stat-value">+₦50</div>
+                        <div class="stat-label">Voice Message</div>
+                        <div style="font-size: 10px; color: var(--text-secondary);">Earn per reply</div>
+                    </div>
+                    <div class="stat-item" onclick="activateFeature('watch')" style="cursor: pointer;">
+                        <div style="font-size: 24px;">🎬</div>
+                        <div class="stat-value">+₦100</div>
+                        <div class="stat-label">Watch Post</div>
+                        <div style="font-size: 10px; color: var(--text-secondary);">Create & earn</div>
+                    </div>
+                    <div class="stat-item" onclick="activateFeature('tips')" style="cursor: pointer;">
+                        <div style="font-size: 24px;">💝</div>
+                        <div class="stat-value">+₦500</div>
+                        <div class="stat-label">Send Tip</div>
+                        <div style="font-size: 10px; color: var(--text-secondary);">Tip members</div>
+                    </div>
+                    <div class="stat-item" onclick="activateFeature('referral')" style="cursor: pointer;">
+                        <div style="font-size: 24px;">👥</div>
+                        <div class="stat-value">+₦200</div>
+                        <div class="stat-label">Referral</div>
+                        <div style="font-size: 10px; color: var(--text-secondary);">Invite friends</div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, var(--green), var(--blue)); color: white; padding: 20px; border-radius: 15px;">
+                    <h4 style="margin-bottom: 10px;">💡 How to Earn More</h4>
+                    <ul style="padding-left: 20px; font-size: 14px;">
+                        <li>Send voice messages (+₦50 per reply received)</li>
+                        <li>Create watch posts (+₦100 per 100 views)</li>
+                        <li>Tip other members (get 10% platform bonus)</li>
+                        <li>Refer friends (+₦200 per active referral)</li>
+                        <li>Daily chat streak bonus</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeModal('earnModal')">
+                    Close
+                </button>
+                <button class="modal-btn primary" onclick="openWithdrawModal()">
+                    💰 Withdraw Earnings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div class="modal" id="groupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">👥 Create Community</h2>
+                <button class="modal-close" onclick="closeModal('groupModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Community Name</label>
+                    <input type="text" class="form-input" id="groupName" placeholder="Enter community name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="groupDescription" placeholder="What is this community about?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Privacy Settings</label>
+                    <div style="margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="radio" name="privacy" value="public" checked>
+                            <div>
+                                <div style="font-weight: bold;">🌍 Public</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Anyone can join and view</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="radio" name="privacy" value="private">
+                            <div>
+                                <div style="font-weight: bold;">🔒 Private</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Membership by approval only</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="radio" name="privacy" value="premium">
+                            <div>
+                                <div style="font-weight: bold;">💰 Premium</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Paid membership (earn from fees)</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Monetization</label>
+                    <div style="margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="checkbox" id="enableTips">
+                            <div>
+                                <div style="font-weight: bold;">💝 Enable Tips</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Members can tip each other</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="enableAds">
+                            <div>
+                                <div style="font-weight: bold;">📢 Enable Ads</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Earn from community ads</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeModal('groupModal')">
+                    Cancel
+                </button>
+                <button class="modal-btn primary" onclick="createCommunity()">
+                    🚀 Create Community
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Watch Post Modal -->
+    <div class="modal" id="watchPostModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🎬 Create Watch Post</h2>
+                <button class="modal-close" onclick="closeModal('watchPostModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">What are you watching?</label>
+                    <input type="text" class="form-input" id="watchTitle" placeholder="Movie/TV Show title">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Your thoughts</label>
+                    <textarea class="form-textarea" id="watchThoughts" placeholder="Share your review, thoughts, or reactions..." rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Add Media (Optional)</label>
+                    <div style="border: 2px dashed var(--border-color); border-radius: 15px; padding: 30px; text-align: center; cursor: pointer; margin-top: 10px;">
+                        <div style="font-size: 48px; color: var(--text-secondary);">📷</div>
+                        <div>Click to add screenshot or video clip</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Max 10MB • JPG, PNG, MP4</div>
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, var(--gold), var(--yellow)); color: var(--black); padding: 20px; border-radius: 15px; margin-top: 20px;">
+                    <h4 style="margin-bottom: 10px;">💰 Earning Potential</h4>
+                    <ul style="padding-left: 20px;">
+                        <li>+₦100 for every 100 views</li>
+                        <li>+₦50 for each comment received</li>
+                        <li>+₦200 for trending posts</li>
+                        <li>Earn more with quality content!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeModal('watchPostModal')">
+                    Cancel
+                </button>
+                <button class="modal-btn primary" onclick="createWatchPost()">
+                    🚀 Post & Earn
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Earnings Modal -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">💰 Withdraw Earnings</h2>
+                <button class="modal-close" onclick="closeModal('withdrawModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 48px;">💸</div>
+                    <div style="font-size: 32px; font-weight: bold; color: var(--gold);">₦1,250</div>
+                    <div style="color: var(--text-secondary);">Available for withdrawal</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Amount to Withdraw</label>
+                    <input type="number" class="form-input" id="withdrawAmount" placeholder="Minimum ₦500" min="500">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select" id="paymentMethod">
+                        <option value="bank">🏦 Bank Transfer</option>
+                        <option value="paypal">💳 PayPal</option>
+                        <option value="crypto">₿ Cryptocurrency</option>
+                        <option value="airtime">📱 Airtime</option>
+                    </select>
+                </div>
+                
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Withdrawal Amount:</span>
+                        <span id="displayAmount">₦0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Processing Fee (2%):</span>
+                        <span id="displayFee">₦0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                        <span>You Receive:</span>
+                        <span id="displayReceive" style="color: var(--green);">₦0</span>
+                    </div>
+                </div>
+                
+                <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">
+                    ⏰ Processing time: 24-48 hours for Premium users, 5-7 days for Freemium
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeModal('withdrawModal')">
+                    Cancel
+                </button>
+                <button class="modal-btn primary" onclick="processWithdrawal()">
+                    💸 Request Withdrawal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.createElement('button');
+        themeToggle.innerHTML = '🌙 Dark Mode';
+        themeToggle.style.cssText = 'position:fixed;top:20px;right:20px;z-index:1000;background:var(--black);color:var(--gold);border:2px solid var(--gold);padding:8px 15px;border-radius:25px;cursor:pointer;font-weight:bold;';
+        document.body.appendChild(themeToggle);
+        
+        let isDarkMode = true;
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+                themeToggle.innerHTML = '🌙 Dark Mode';
+            } else {
+                document.body.classList.add('light-mode');
+                themeToggle.innerHTML = '☀️ Light Mode';
+            }
+        });
+
+        // Telegram integration
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.setHeaderColor('#FFD700');
+
+        // Sample data
+        const chats = [
+            {
+                id: 1,
+                name: "Movie Buffs Nigeria",
+                avatar: "https://picsum.photos/200?random=group1",
+                type: "group",
+                lastMessage: "Who's watching the new Netflix movie?",
+                time: "10:30 AM",
+                unread: 3,
+                online: true,
+                members: 1248
+            },
+            {
+                id: 2,
+                name: "Chinedu Obi",
+                avatar: "https://picsum.photos/200?random=user1",
+                type: "private",
+                lastMessage: "Thanks for the tip! 💰",
+                time: "Yesterday",
+                unread: 0,
+                online: true
+            },
+            {
+                id: 3,
+                name: "Lagos Tech Hub",
+                avatar: "https://picsum.photos/200?random=group2",
+                type: "group",
+                lastMessage: "New gig posted: Website Development",
+                time: "2 days ago",
+                unread: 12,
+                online: false,
+                members: 567
+            },
+            {
+                id: 4,
+                name: "Nollywood Lovers",
+                avatar: "https://picsum.photos/200?random=group3",
+                type: "group",
+                lastMessage: "Watch post: King of Boys Review",
+                time: "1 week ago",
+                unread: 0,
+                online: true,
+                members: 892
+            }
+        ];
+
+        const communities = [
+            {
+                id: 1,
+                name: "Nigerian Film Club",
+                avatar: "https://picsum.photos/300?random=com1",
+                members: 2450,
+                posts: 1245,
+                description: "Discussing Nigerian cinema and film industry",
+                recentPost: {
+                    author: "Amina Yusuf",
+                    text: "Just watched 'The Black Book' - amazing performance by Richard Mofe-Damijo!"
+                }
+            },
+            {
+                id: 2,
+                name: "Gig Masters Elite",
+                avatar: "https://picsum.photos/300?random=com2",
+                members: 1876,
+                posts: 892,
+                description: "Top freelancers sharing tips and opportunities",
+                recentPost: {
+                    author: "Mike Adeyemi",
+                    text: "Earned ₦25,000 from a single gig this week! 💪"
+                }
+            },
+            {
+                id: 3,
+                name: "Watch & Earn Club",
+                avatar: "https://picsum.photos/300?random=com3",
+                members: 3124,
+                posts: 1567,
+                description: "Share what you're watching and earn money",
+                recentPost: {
+                    author: "Blessing Okoro",
+                    text: "My watch post earned ₦500 in 24 hours! 🎉"
+                }
+            }
+        ];
+
+        const messages = {
+            1: [
+                {
+                    id: 1,
+                    sender: "Chinedu Obi",
+                    avatar: "https://picsum.photos/100?random=admin1",
+                    text: "Welcome to Movie Buffs Nigeria! 🎬",
+                    time: "10:00 AM",
+                    type: "text",
+                    sent: false
+                },
+                {
+                    id: 2,
+                    sender: "You",
+                    avatar: "https://picsum.photos/100?random=me",
+                    text: "Thanks! Excited to be here. Any movie recommendations?",
+                    time: "10:05 AM",
+                    type: "text",
+                    sent: true
+                },
+                {
+                    id: 3,
+                    sender: "Amina Yusuf",
+                    avatar: "https://picsum.photos/100?random=admin2",
+                    text: "Just watched 'The Black Book' on Netflix. Highly recommend!",
+                    time: "10:15 AM",
+                    type: "text",
+                    sent: false
+                },
+                {
+                    id: 4,
+                    sender: "Mike Adeyemi",
+                    avatar: "https://picsum.photos/100?random=user1",
+                    text: "Who's watching the new Netflix movie this weekend?",
+                    time: "10:30 AM",
+                    type: "text",
+                    sent: false
+                },
+                {
+                    id: 5,
+                    sender: "You",
+                    avatar: "https://picsum.photos/100?random=me",
+                    text: "",
+                    time: "10:35 AM",
+                    type: "money",
+                    amount: 500,
+                    note: "Tip for great recommendation!",
+                    sent: true
+                },
+                {
+                    id: 6,
+                    sender: "Blessing Okoro",
+                    avatar: "https://picsum.photos/100?random=user2",
+                    text: "Check out my watch post about King of Boys 👇",
+                    time: "11:00 AM",
+                    type: "watch",
+                    post: {
+                        title: "King of Boys Review",
+                        text: "Just rewatched King of Boys. The character development is incredible! Sola Sobowale absolutely killed it. What did you guys think about the ending?",
+                        media: "https://picsum.photos/400/300?random=movie1",
+                        likes: 24,
+                        comments: 8,
+                        earnings: 250
+                    },
+                    sent: false
+                }
+            ]
+        };
+
+        // State
+        let currentChatId = null;
+        let currentTab = 'chats';
+        let activeTool = null;
+        let earnings = 1250;
+
+        // Initialize
+        function init() {
+            renderChats();
+            renderCommunities();
+            updateEarningsDisplay();
+            
+            // Set up message input auto-resize
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Enter to send
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Withdraw amount calculator
+            document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawalCalc);
+        }
+
+        // Render chats list
+        function renderChats() {
+            const container = document.getElementById('chatsTab');
+            container.innerHTML = chats.map(chat => `
+                <div class="chat-item ${currentChatId === chat.id ? 'active' : ''}" 
+                     onclick="selectChat(${chat.id})">
+                    ${chat.type === 'group' ? `
+                        <div class="chat-group-avatar">
+                            <img src="${chat.avatar}" alt="${chat.name}" class="chat-group-avatar">
+                            <div class="group-badge">👥</div>
+                        </div>
+                    ` : `
+                        <img src="${chat.avatar}" alt="${chat.name}" class="chat-avatar">
+                    `}
+                    <div class="chat-info">
+                        <div class="chat-name">
+                            <span>${chat.name}</span>
+                            <span class="chat-time">${chat.time}</span>
+                        </div>
+                        <div class="chat-last-message">
+                            ${chat.lastMessage}
+                            ${chat.unread > 0 ? `<span class="unread-badge">${chat.unread}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render communities
+        function renderCommunities() {
+            const container = document.getElementById('communitiesTab');
+            container.innerHTML = communities.map(community => `
+                <div class="community-card" onclick="joinCommunity(${community.id})">
+                    <div class="community-header">
+                        <img src="${community.avatar}" alt="${community.name}" class="community-avatar">
+                        <div class="community-info">
+                            <div class="community-name">${community.name}</div>
+                            <div class="community-members">
+                                👥 ${community.members.toLocaleString()} members
+                            </div>
+                        </div>
+                    </div>
+                    <div class="community-posts">
+                        <div class="post-preview">
+                            <div>
+                                <div class="post-author">${community.recentPost.author}</div>
+                                <div class="post-text">${community.recentPost.text}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select chat
+        function selectChat(chatId) {
+            currentChatId = chatId;
+            const chat = chats.find(c => c.id === chatId);
+            
+            // Update UI
+            document.getElementById('currentChatName').textContent = chat.name;
+            document.getElementById('chatStatus').innerHTML = chat.type === 'group' 
+                ? `<span class="online-dot"></span> ${chat.members.toLocaleString()} members • Online`
+                : `<span class="online-dot"></span> Online`;
+            
+            // Render messages
+            renderMessages(chatId);
+            
+            // Update active state
+            renderChats();
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+        }
+
+        // Render messages
+        function renderMessages(chatId) {
+            const container = document.getElementById('messagesArea');
+            const chatMessages = messages[chatId] || [];
+            
+            container.innerHTML = `
+                <div class="date-separator">
+                    <span class="date-label">Today</span>
+                </div>
+            `;
+            
+            chatMessages.forEach(msg => {
+                if (msg.type === 'text') {
+                    container.innerHTML += `
+                        <div class="message ${msg.sent ? 'sent' : 'received'}">
+                            ${!msg.sent ? `<img src="${msg.avatar}" alt="${msg.sender}" class="message-avatar">` : ''}
+                            <div class="message-bubble">
+                                ${!msg.sent ? `<div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">${msg.sender}</div>` : ''}
+                                <div class="message-text">${msg.text}</div>
+                                <div class="message-time">
+                                    ${msg.time}
+                                    ${msg.sent ? '<span class="read-receipt">✓✓</span>' : ''}
+                                </div>
+                            </div>
+                            ${msg.sent ? `<img src="${msg.avatar}" alt="You" class="message-avatar">` : ''}
+                        </div>
+                    `;
+                } else if (msg.type === 'money') {
+                    container.innerHTML += `
+                        <div class="message ${msg.sent ? 'sent' : 'received'}">
+                            ${!msg.sent ? `<img src="${msg.avatar}" alt="${msg.sender}" class="message-avatar">` : ''}
+                            <div class="money-message">
+                                <div class="money-badge">TIP</div>
+                                <div style="font-size: 14px; opacity: 0.8;">${msg.sent ? 'You sent' : `${msg.sender} sent`}</div>
+                                <div class="money-amount">₦${msg.amount.toLocaleString()}</div>
+                                <div class="money-note">${msg.note}</div>
+                                ${!msg.sent ? `
+                                    <div class="money-actions">
+                                        <button class="money-btn accept-btn" onclick="acceptTip(${msg.amount})">Accept</button>
+                                        <button class="money-btn decline-btn" onclick="declineTip()">Decline</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${msg.sent ? `<img src="${msg.avatar}" alt="You" class="message-avatar">` : ''}
+                        </div>
+                    `;
+                } else if (msg.type === 'watch') {
+                    container.innerHTML += `
+                        <div class="message ${msg.sent ? 'sent' : 'received'}">
+                            ${!msg.sent ? `<img src="${msg.avatar}" alt="${msg.sender}" class="message-avatar">` : ''}
+                            <div style="max-width: 400px;">
+                                <div class="watch-post">
+                                    <div class="post-header">
+                                        <img src="${msg.avatar}" alt="${msg.sender}" class="post-author-avatar">
+                                        <div class="post-author-info">
+                                            <div class="post-author-name">${msg.sender}</div>
+                                            <div class="post-time">${msg.time} • 🎬 Watch Post</div>
+                                        </div>
+                                    </div>
+                                    <div class="post-content">
+                                        <h4 style="margin-bottom: 10px; color: var(--gold);">${msg.post.title}</h4>
+                                        <p class="post-text">${msg.post.text}</p>
+                                        <div class="post-media">
+                                            <img src="${msg.post.media}" alt="${msg.post.title}">
+                                        </div>
+                                        <div style="background: rgba(255,215,0,0.1); padding: 10px; border-radius: 10px; font-size: 14px;">
+                                            <span style="color: var(--gold);">💰</span> Earned ₦${msg.post.earnings} from this post
+                                        </div>
+                                    </div>
+                                    <div class="post-actions">
+                                        <button class="post-action" onclick="likePost(${msg.id})">
+                                            ❤️ ${msg.post.likes}
+                                        </button>
+                                        <button class="post-action" onclick="commentOnPost(${msg.id})">
+                                            💬 ${msg.post.comments}
+                                        </button>
+                                        <button class="post-action" onclick="sharePost(${msg.id})">
+                                            🔗 Share
+                                        </button>
+                                        <button class="post-action" onclick="tipPostAuthor(${msg.id}, '${msg.sender}')">
+                                            💰 Tip
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="message-time" style="margin-top: 5px; justify-content: flex-start;">
+                                    ${msg.time}
+                                </div>
+                            </div>
+                            ${msg.sent ? `<img src="${msg.avatar}" alt="You" class="message-avatar">` : ''}
+                        </div>
+                    `;
+                }
+            });
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update tab buttons
+            document.querySelectorAll('.sidebar-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide content
+            document.getElementById('chatsTab').style.display = tabName === 'chats' ? 'block' : 'none';
+            document.getElementById('communitiesTab').style.display = tabName === 'communities' ? 'block' : 'none';
+            document.getElementById('watchTab').style.display = tabName === 'watch' ? 'block' : 'none';
+        }
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text && !activeTool) return;
+            
+            if (activeTool === 'money') {
+                // Send money
+                const amount = prompt('Enter amount to send (₦):');
+                if (amount && parseInt(amount) > 0) {
+                    const note = prompt('Add a note (optional):') || 'Here you go! 💰';
+                    
+                    // Add to messages
+                    if (!messages[currentChatId]) messages[currentChatId] = [];
+                    messages[currentChatId].push({
+                        id: Date.now(),
+                        sender: "You",
+                        avatar: "https://picsum.photos/100?random=me",
+                        text: "",
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        type: "money",
+                        amount: parseInt(amount),
+                        note: note,
+                        sent: true
+                    });
+                    
+                    // Update earnings (deduct sent amount)
+                    earnings -= parseInt(amount);
+                    updateEarningsDisplay();
+                    
+                    renderMessages(currentChatId);
+                }
+                activeTool = null;
+                updateToolButtons();
+            } else if (text) {
+                // Send text message
+                if (!messages[currentChatId]) messages[currentChatId] = [];
+                messages[currentChatId].push({
+                    id: Date.now(),
+                    sender: "You",
+                    avatar: "https://picsum.photos/100?random=me",
+                    text: text,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    type: "text",
+                    sent: true
+                });
+                
+                renderMessages(currentChatId);
+            }
+            
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Reset active tool
+            activeTool = null;
+            updateToolButtons();
+        }
+
+        // Tool buttons
+        function toggleTool(tool) {
+            if (activeTool === tool) {
+                activeTool = null;
+            } else {
+                activeTool = tool;
+                
+                if (tool === 'money') {
+                    // Open money send modal
+                    const amount = prompt('Enter amount to send (₦):');
+                    if (amount && parseInt(amount) > 0) {
+                        const note = prompt('Add a note (optional):') || 'Here you go! 💰';
+                        
+                        if (!messages[currentChatId]) messages[currentChatId] = [];
+                        messages[currentChatId].push({
+                            id: Date.now(),
+                            sender: "You",
+                            avatar: "https://picsum.photos/100?random=me",
+                            text: "",
+                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            type: "money",
+                            amount: parseInt(amount),
+                            note: note,
+                            sent: true
+                        });
+                        
+                        // Update earnings
+                        earnings -= parseInt(amount);
+                        updateEarningsDisplay();
+                        
+                        renderMessages(currentChatId);
+                        activeTool = null;
+                    }
+                } else if (tool === 'voice') {
+                    // Start voice recording
+                    alert('Voice recording started... Press stop when done.');
+                    // In real app, this would use Web Audio API
+                }
+            }
+            updateToolButtons();
+        }
+
+        function updateToolButtons() {
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+        // Money earning features
+        function acceptTip(amount) {
+            earnings += amount;
+            updateEarningsDisplay();
+            alert(`💰 Tip of ₦${amount.toLocaleString()} accepted! Added to your balance.`);
+        }
+
+        function declineTip() {
+            alert('Tip declined.');
+        }
+
+        function updateEarningsDisplay() {
+            document.querySelector('.earnings-amount').textContent = `₦${earnings.toLocaleString()}`;
+        }
+
+        // Modals
+        function openEarnModal() {
+            document.getElementById('earnModal').classList.add('active');
+        }
+
+        function openGroupModal() {
+            document.getElementById('groupModal').classList.add('active');
+        }
+
+        function openWatchPostModal() {
+            document.getElementById('watchPostModal').classList.add('active');
+        }
+
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').classList.add('active');
+            updateWithdrawalCalc();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Create community
+        function createCommunity() {
+            const name = document.getElementById('groupName').value;
+            const description = document.getElementById('groupDescription').value;
+            
+            if (!name || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Add to communities list
+            communities.unshift({
+                id: Date.now(),
+                name: name,
+                avatar: `https://picsum.photos/300?random=${Date.now()}`,
+                members: 1,
+                posts: 0,
+                description: description,
+                recentPost: {
+                    author: "You",
+                    text: "Welcome to our new community!"
+                }
+            });
+            
+            // Also add to chats
+            chats.unshift({
+                id: Date.now(),
+                name: name,
+                avatar: `https://picsum.photos/200?random=${Date.now()}`,
+                type: "group",
+                lastMessage: "Group created",
+                time: "Just now",
+                unread: 0,
+                online: true,
+                members: 1
+            });
+            
+            renderCommunities();
+            renderChats();
+            closeModal('groupModal');
+            alert(`Community "${name}" created successfully! 🎉`);
+        }
+
+        // Create watch post
+        function createWatchPost() {
+            const title = document.getElementById('watchTitle').value;
+            const thoughts = document.getElementById('watchThoughts').value;
+            
+            if (!title || !thoughts) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Add earnings
+            earnings += 100; // Base earning for creating post
+            updateEarningsDisplay();
+            
+            if (currentChatId) {
+                if (!messages[currentChatId]) messages[currentChatId] = [];
+                messages[currentChatId].push({
+                    id: Date.now(),
+                    sender: "You",
+                    avatar: "https://picsum.photos/100?random=me",
+                    text: "",
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    type: "watch",
+                    post: {
+                        title: title,
+                        text: thoughts,
+                        media: "https://picsum.photos/400/300?random=movie" + Date.now(),
+                        likes: 0,
+                        comments: 0,
+                        earnings: 100
+                    },
+                    sent: true
+                });
+                
+                renderMessages(currentChatId);
+            }
+            
+            closeModal('watchPostModal');
+            alert('Watch post created! You earned ₦100 🎉');
+        }
+
+        // Withdrawal calculation
+        function updateWithdrawalCalc() {
+            const amount = parseInt(document.getElementById('withdrawAmount').value) || 0;
+            const fee = amount * 0.02;
+            const receive = amount - fee;
+            
+            document.getElementById('displayAmount').textContent = `₦${amount.toLocaleString()}`;
+            document.getElementById('displayFee').textContent = `₦${fee.toLocaleString()}`;
+            document.getElementById('displayReceive').textContent = `₦${receive.toLocaleString()}`;
+        }
+
+        function processWithdrawal() {
+            const amount = parseInt(document.getElementById('withdrawAmount').value) || 0;
+            
+            if (amount < 500) {
+                alert('Minimum withdrawal amount is ₦500');
+                return;
+            }
+            
+            if (amount > earnings) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            earnings -= amount;
+            updateEarningsDisplay();
+            
+            closeModal('withdrawModal');
+            alert(`Withdrawal request for ₦${amount.toLocaleString()} submitted! Processing time: 24-48 hours.`);
+        }
+
+        // UI controls
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        function toggleRightSidebar() {
+            document.getElementById('rightSidebar').classList.toggle('active');
+        }
+
+        // Other functions
+        function joinCommunity(id) {
+            const community = communities.find(c => c.id === id);
+            alert(`Joining "${community.name}"...`);
+            // In real app, this would make API call
+        }
+
+        function openVideoCall() {
+            alert('Video call feature coming soon!');
+        }
+
+        function openGroupSettings() {
+            alert('Group settings opened');
+        }
+
+        function inviteMembers() {
+            const link = 'https://cinetasks.com/join/group123';
+            navigator.clipboard.writeText(link);
+            alert('Invite link copied to clipboard!');
+        }
+
+        function shareGroup() {
+            alert('Share group feature');
+        }
+
+        function leaveGroup() {
+            if (confirm('Are you sure you want to leave this group?')) {
+                alert('You have left the group.');
+            }
+        }
+
+        function likePost(postId) {
+            alert(`Liked post ${postId}`);
+            // Add earnings for likes
+            earnings += 10;
+            updateEarningsDisplay();
+        }
+
+        function commentOnPost(postId) {
+            const comment = prompt('Enter your comment:');
+            if (comment) {
+                alert(`Commented on post: "${comment}"`);
+                // Add earnings for comments
+                earnings += 20;
+                updateEarningsDisplay();
+            }
+        }
+
+        function sharePost(postId) {
+            alert(`Shared post ${postId}`);
+            earnings += 30;
+            updateEarningsDisplay();
+        }
+
+        function tipPostAuthor(postId, author) {
+            const amount = prompt(`Enter tip amount for ${author} (₦):`);
+            if (amount && parseInt(amount) > 0) {
+                alert(`Sent ₦${amount} tip to ${author}`);
+                earnings -= parseInt(amount);
+                updateEarningsDisplay();
+            }
+        }
+
+        function activateFeature(feature) {
+            const features = {
+                voice: { message: 'Voice message earning activated! Earn ₦50 per reply.', earnings: 50 },
+                watch: { message: 'Watch post creation enabled! Earn ₦100 per post.', earnings: 100 },
+                tips: { message: 'Tip sending enabled! Get 10% platform bonus.', earnings: 0 },
+                referral: { message: 'Referral link copied! Earn ₦200 per active referral.', earnings: 200 }
+            };
+            
+            const selected = features[feature];
+            alert(selected.message);
+            
+            if (selected.earnings > 0) {
+                earnings += selected.earnings;
+                updateEarningsDisplay();
+            }
+            
+            if (feature === 'referral') {
+                navigator.clipboard.writeText('https://cinetasks.com/ref/chat123');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

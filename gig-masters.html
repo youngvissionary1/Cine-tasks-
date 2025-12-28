@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gig Masters - CineTasks Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --gold: #FFD700;
+            --black: #000000;
+            --blue: #1E90FF;
+            --green: #32CD32;
+            --red: #FF4500;
+            --yellow: #FFD700;
+            --bg-primary: #000000;
+            --bg-secondary: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --card-bg: #1A1A1A;
+            --border-color: #333333;
+        }
+
+        .light-mode {
+            --gold: #B8860B;
+            --black: #333333;
+            --blue: #007BFF;
+            --green: #28A745;
+            --red: #DC3545;
+            --yellow: #FFC107;
+            --bg-primary: #F5F5F5;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: var(--black);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle {
+            background: var(--black);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* STATS BAR */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card:nth-child(1) { border-color: var(--gold); }
+        .stat-card:nth-child(2) { border-color: var(--blue); }
+        .stat-card:nth-child(3) { border-color: var(--green); }
+        .stat-card:nth-child(4) { border-color: var(--red); }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .action-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(30, 144, 255, 0.3);
+        }
+
+        .action-card:nth-child(2) {
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            color: var(--black);
+        }
+
+        /* FILTERS */
+        .filters-section {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid var(--border-color);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .filter-select, .filter-input {
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        /* GIG GRID */
+        .gigs-title {
+            font-size: 24px;
+            color: var(--gold);
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .gigs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .gig-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .gig-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .gig-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .gig-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gig-badge {
+            background: var(--gold);
+            color: var(--black);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .gig-client {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .client-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .client-info {
+            flex-grow: 1;
+        }
+
+        .client-name {
+            font-weight: bold;
+        }
+
+        .client-rating {
+            color: var(--gold);
+            font-size: 14px;
+        }
+
+        .gig-body {
+            padding: 20px;
+        }
+
+        .gig-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .gig-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .skill-tag {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .gig-footer {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gig-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .gig-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .apply-btn {
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .apply-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .apply-btn.applied {
+            background: linear-gradient(135deg, var(--gold), var(--yellow));
+            color: var(--black);
+            cursor: default;
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 40px 0;
+        }
+
+        .page-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn.active {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .page-btn:hover:not(.active) {
+            border-color: var(--gold);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            margin: 40px 0;
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .gigs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <a href="index.html" class="back-btn">← Home</a>
+            <div class="page-title">⚡ GIG MASTERS</div>
+        </div>
+        <button class="theme-toggle" id="themeToggle">
+            🌙 Dark Mode
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value">₦2.4M</div>
+                <div class="stat-label">Total Paid Out</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1,248</div>
+                <div class="stat-label">Active Gigs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5,672</div>
+                <div class="stat-label">Gig Masters</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">94%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-card" onclick="window.location.href='post-gig.html'">
+                🚀 POST A GIG<br>
+                <small>Find skilled masters</small>
+            </button>
+            <button class="action-card" onclick="showMyGigs()">
+                💼 MY GIGS<br>
+                <small>View your activity</small>
+            </button>
+            <button class="action-card" onclick="showLeaderboard()">
+                🏆 TOP MASTERS<br>
+                <small>See who's leading</small>
+            </button>
+            <button class="action-card" onclick="showHelp()">
+                ❓ HOW IT WORKS<br>
+                <small>Learn the process</small>
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <h3 style="color: var(--gold); margin-bottom: 20px;">🔍 Find Perfect Gigs</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="design">🎨 Design & Creative</option>
+                        <option value="writing">✍️ Writing & Content</option>
+                        <option value="development">💻 Development & IT</option>
+                        <option value="video">🎬 Video & Animation</option>
+                        <option value="marketing">📈 Marketing & Sales</option>
+                        <option value="business">💼 Business & Admin</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Budget Range</label>
+                    <select class="filter-select" id="budgetFilter">
+                        <option value="">Any Budget</option>
+                        <option value="0-5000">₦0 - ₦5,000</option>
+                        <option value="5000-20000">₦5,000 - ₦20,000</option>
+                        <option value="20000-50000">₦20,000 - ₦50,000</option>
+                        <option value="50000+">₦50,000+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Experience Level</label>
+                    <select class="filter-select" id="experienceFilter">
+                        <option value="">Any Level</option>
+                        <option value="entry">🎯 Entry Level</option>
+                        <option value="intermediate">⚡ Intermediate</option>
+                        <option value="expert">🏆 Expert</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">Sort By</label>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="newest">🆕 Newest First</option>
+                        <option value="highest">💰 Highest Budget</option>
+                        <option value="deadline">⏰ Ending Soon</option>
+                        <option value="popular">🔥 Most Popular</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Search Keywords</label>
+                    <input type="text" class="filter-input" id="searchFilter" placeholder="Logo design, website, content...">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label" style="visibility: hidden;">Actions</label>
+                    <button style="background: var(--gold); color: var(--black); border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        🔍 Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Gigs -->
+        <h2 class="gigs-title">🔥 FEATURED GIGS</h2>
+        <div class="gigs-grid" id="featuredGigs">
+            <!-- Featured gigs will load here -->
+        </div>
+
+        <!-- All Gigs -->
+        <h2 class="gigs-title" style="margin-top: 40px;">📋 ALL AVAILABLE GIGS</h2>
+        <div class="gigs-grid" id="allGigs">
+            <!-- All gigs will load here -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <button class="page-btn">Next →</button>
+        </div>
+
+        <!-- Empty State (Hidden by default) -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">😕</div>
+            <h3 style="color: var(--gold); margin-bottom: 10px;">No Gigs Found</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Try adjusting your filters or check back later for new opportunities.
+            </p>
+            <button style="background: var(--gold); color: var(--black); border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer;">
+                Clear All Filters
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        let isDarkMode = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+                themeToggle.textContent = '🌙 Dark Mode';
+            } else {
+                document.body.classList.add('light-mode');
+                themeToggle.textContent = '☀️ Light Mode';
+            }
+        });
+
+        // Sample gigs data
+        const gigs = [
+            {
+                id: 1,
+                title: "Modern Logo Design for Tech Startup",
+                client: { name: "TechNova Inc.", avatar: "https://picsum.photos/50?random=1", rating: 4.8 },
+                description: "Looking for a creative designer to create a modern, minimalist logo for our new tech startup. Should represent innovation and technology.",
+                skills: ["Logo Design", "Branding", "Adobe Illustrator", "Minimalist"],
+                budget: "₦15,000 - ₦25,000",
+                type: "fixed",
+                deadline: "3 days",
+                applications: 12,
+                featured: true,
+                category: "design",
+                experience: "intermediate"
+            },
+            {
+                id: 2,
+                title: "E-commerce Website Development",
+                client: { name: "ShopEasy NG", avatar: "https://picsum.photos/50?random=2", rating: 4.9 },
+                description: "Need a full e-commerce website with payment integration, product catalog, and admin panel. Must be mobile responsive.",
+                skills: ["Web Development", "E-commerce", "React", "Node.js", "Payment Gateway"],
+                budget: "₦80,000 - ₦150,000",
+                type: "fixed",
+                deadline: "2 weeks",
+                applications: 8,
+                featured: true,
+                category: "development",
+                experience: "expert"
+            },
+            {
+                id: 3,
+                title: "Social Media Content Writer",
+                client: { name: "BrandBoost Agency", avatar: "https://picsum.photos/50?random=3", rating: 4.7 },
+                description: "Daily social media posts for Instagram and Twitter. Engaging content that drives interaction and follows.",
+                skills: ["Content Writing", "Social Media", "Copywriting", "Marketing"],
+                budget: "₦5,000/week",
+                type: "recurring",
+                deadline: "Ongoing",
+                applications: 24,
+                featured: false,
+                category: "writing",
+                experience: "entry"
+            },
+            {
+                id: 4,
+                title: "Product Video Animation",
+                client: { name: "Innovate Labs", avatar: "https://picsum.photos/50?random=4", rating: 4.9 },
+                description: "2-minute animated explainer video for our new mobile app. Should be engaging and clearly explain features.",
+                skills: ["Animation", "Video Editing", "After Effects", "Motion Graphics"],
+                budget: "₦45,000",
+                type: "fixed",
+                deadline: "10 days",
+                applications: 6,
+                featured: true,
+                category: "video",
+                experience: "expert"
+            },
+            {
+                id: 5,
+                title: "SEO Optimization for Blog",
+                client: { name: "Content Kings", avatar: "https://picsum.photos/50?random=5", rating: 4.6 },
+                description: "Optimize existing blog posts for better Google rankings. Keyword research and on-page SEO implementation.",
+                skills: ["SEO", "Content Strategy", "Google Analytics", "Keyword Research"],
+                budget: "₦25,000",
+                type: "fixed",
+                deadline: "1 week",
+                applications: 15,
+                featured: false,
+                category: "marketing",
+                experience: "intermediate"
+            },
+            {
+                id: 6,
+                title: "Virtual Assistant - Data Entry",
+                client: { name: "Business Pro", avatar: "https://picsum.photos/50?random=6", rating: 4.5 },
+                description: "Part-time virtual assistant for data entry and email management. 20 hours per week, flexible schedule.",
+                skills: ["Data Entry", "Virtual Assistance", "Excel", "Organization"],
+                budget: "₦30,000/month",
+                type: "recurring",
+                deadline: "Ongoing",
+                applications: 32,
+                featured: false,
+                category: "business",
+                experience: "entry"
+            }
+        ];
+
+        // Track applied gigs
+        let appliedGigs = new Set();
+
+        // Render gigs
+        function renderGigs() {
+            const featuredContainer = document.getElementById('featuredGigs');
+            const allContainer = document.getElementById('allGigs');
+            
+            featuredContainer.innerHTML = '';
+            allContainer.innerHTML = '';
+            
+            const featuredGigs = gigs.filter(gig => gig.featured);
+            const otherGigs = gigs.filter(gig => !gig.featured);
+            
+            // Render featured gigs
+            featuredGigs.forEach(gig => {
+                featuredContainer.appendChild(createGigCard(gig));
+            });
+            
+            // Render other gigs
+            otherGigs.forEach(gig => {
+                allContainer.appendChild(createGigCard(gig));
+            });
+            
+            // Show/hide empty state
+            document.getElementById('emptyState').style.display = 
+                gigs.length === 0 ? 'block' : 'none';
+        }
+
+        // Create gig card element
+        function createGigCard(gig) {
+            const card = document.createElement('div');
+            card.className = 'gig-card';
+            
+            const isApplied = appliedGigs.has(gig.id);
+            
+            card.innerHTML = `
+                <div class="gig-header">
+                    <div class="gig-title">
+                        <span>${gig.title}</span>
+                        ${gig.featured ? '<span class="gig-badge">🔥 FEATURED</span>' : ''}
+                    </div>
+                    <div class="gig-client">
+                        <img src="${gig.client.avatar}" alt="${gig.client.name}" class="client-avatar">
+                        <div class="client-info">
+                            <div class="client-name">${gig.client.name}</div>
+                            <div class="client-rating">★ ${gig.client.rating}/5</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="gig-body">
+                    <p class="gig-description">${gig.description}</p>
+                    
+                    <div class="gig-skills">
+                        ${gig.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 14px; margin-top: 15px;">
+                        <div>
+                            <span style="color: var(--gold);">⏰</span> ${gig.deadline} left
+                        </div>
+                        <div>
+                            <span style="color: var(--blue);">👥</span> ${gig.applications} applications
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="gig-footer">
+                    <div>
+                        <div class="gig-price">${gig.budget}</div>
+                        <div class="gig-meta">
+                            <span>${gig.type === 'fixed' ? '💼 Fixed Price' : '🔄 Recurring'}</span>
+                            <span>${gig.experience === 'entry' ? '🎯 Entry' : gig.experience === 'intermediate' ? '⚡ Intermediate' : '🏆 Expert'}</span>
+                        </div>
+                    </div>
+                    <button class="apply-btn ${isApplied ? 'applied' : ''}" 
+                            onclick="applyToGig(${gig.id})"
+                            ${isApplied ? 'disabled' : ''}>
+                        ${isApplied ? '✅ APPLIED' : '⚡ APPLY NOW'}
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Apply to gig function
+        function applyToGig(gigId) {
+            const gig = gigs.find(g => g.id === gigId);
+            if (!gig) return;
+            
+            // Check if already applied
+            if (appliedGigs.has(gigId)) {
+                alert('You have already applied to this gig!');
+                return;
+            }
+            
+            // Show application modal (simplified)
+            const proposal = prompt(`Apply to: "${gig.title}"\n\nWrite your proposal (min. 50 characters):`);
+            
+            if (proposal && proposal.length >= 50) {
+                appliedGigs.add(gigId);
+                gig.applications++;
+                
+                // Re-render the gigs
+                renderGigs();
+                
+                alert(`✅ Application submitted successfully!\n\nYou will hear back from ${gig.client.name} soon.`);
+            } else if (proposal !== null) {
+                alert('Proposal must be at least 50 characters long.');
+            }
+        }
+
+        // Filter gigs
+        function filterGigs() {
+            const category = document.getElementById('categoryFilter').value;
+            const budget = document.getElementById('budgetFilter').value;
+            const experience = document.getElementById('experienceFilter').value;
+            const search = document.getElementById('searchFilter').value.toLowerCase();
+            
+            // In a real app, this would filter the actual data
+            // For now, just show an alert
+            alert(`Filters applied:\nCategory: ${category || 'All'}\nBudget: ${budget || 'Any'}\nExperience: ${experience || 'Any'}\nSearch: ${search || 'None'}`);
+        }
+
+        // Action buttons
+        function showMyGigs() {
+            alert('Showing your gig applications and posted gigs...');
+            // In real app: window.location.href = 'my-gigs.html';
+        }
+
+        function showLeaderboard() {
+            alert('Opening Gig Masters leaderboard...');
+            // In real app: window.location.href = 'leaderboard.html';
+        }
+
+        function showHelp() {
+            alert('Opening help guide for Gig Masters...');
+            // In real app: window.location.href = 'help.html';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Telegram integration
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.setHeaderColor('#FFD700');
+            
+            renderGigs();
+            
+            // Add event listeners to filters
+            document.querySelectorAll('.filter-select, .filter-input').forEach(element => {
+                element.addEventListener('change', filterGigs);
+            });
+            
+            document.getElementById('searchFilter').addEventListener('input', filterGigs);
+            
+            // Add apply filter button functionality
+            document.querySelector('button[style*="background: var(--gold)"]').addEventListener('click', filterGigs);
+        });
+    </script>
+</body>
+</html>
